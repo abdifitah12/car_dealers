@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Find Your Perfect Car</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white">
+
+<!-- Navigation Bar -->
+<nav class="bg-black bg-opacity-75 p-4 fixed w-full z-10 top-0 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center">
+        <a href="#" class="text-2xl font-bold text-white">Vehica</a>
+        <ul class="hidden md:flex space-x-6">
+            <li><a href="#" class="hover:text-yellow-500">Home</a></li>
+            <li><a href="#" class="hover:text-yellow-500">Inventory</a></li>
+            <li><a href="#" class="hover:text-yellow-500">Pages</a></li>
+            <li><a href="#" class="hover:text-yellow-500">Blog</a></li>
+            <li><a href="#" class="hover:text-yellow-500">Features</a></li>
+        </ul>
+        <div class="flex space-x-4">
+            <a href="#" class="border border-white px-4 py-2 rounded-md hover:bg-white hover:text-black">Log in</a>
+            <a href="#" class="bg-yellow-500 px-4 py-2 rounded-md hover:bg-yellow-600">+ Submit Vehicle</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<header class="h-screen bg-cover bg-center flex items-center justify-center text-center" style="background-image: url('https://source.unsplash.com/1600x900/?luxury,cars');">
+    <div class="bg-black bg-opacity-60 p-10 rounded-lg w-full max-w-4xl">
+        <h1 class="text-5xl font-bold text-white">Find Your <span class="text-yellow-500">Perfect</span> Car</h1>
+        <div class="mt-6 bg-gray-800 bg-opacity-75 p-4 rounded-lg">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <!-- Condition Dropdown -->
+                <select class="p-3 rounded-md w-full bg-gray-900 text-white">
+                    <option>Used</option>
+                    <option>New</option>
+                    <option>Certified</option>
+                    <option>One Owner</option>
+                </select>
+
+                <!-- Make Dropdown -->
+                <select class="p-3 rounded-md w-full bg-gray-900 text-white">
+                    <option>All Makes</option>
+                    <option>Acura</option>
+                    <option>Toyota</option>
+                    <option>BMW</option>
+                    <option>Audi</option>
+                </select>
+
+                <!-- Model Dropdown -->
+                <select class="p-3 rounded-md w-full bg-gray-900 text-white">
+                    <option>MODEL</option>
+                    <option>Model X</option>
+                    <option>Model Y</option>
+                </select>
+
+                <!-- Order Dropdown -->
+                <select class="p-3 rounded-md w-full bg-gray-900 text-white">
+                    <option>ORDER</option>
+                    <option>Price Low to High</option>
+                    <option>Price High to Low</option>
+                </select>
+
+                <!-- Search Button -->
+                <button class="p-3 bg-yellow-500 text-black font-bold rounded-md w-full hover:bg-yellow-600">
+                    Search
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Car Listings Section -->
+<!-- Car Listings Section -->
+<section class="py-10">
+    <div class="container mx-auto">
+        <h2 class="text-3xl font-bold text-center mb-6">Available Cars</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Loop through the list of cars from the backend -->
+            <div th:each="car : ${cars}" class="bg-gray-800 p-4 rounded-lg shadow-lg">
+
+                <!-- Loop through multiple images with external URLs -->
+                <div th:each="image : ${car.images}">
+                    <img th:src="${image}" class="w-full h-40 object-cover rounded-md mb-4" alt="Car Image">
+                </div>
+
+
+                <h3 class="text-xl font-bold text-white" th:text="${car.brand} + ' ' + ${car.model}"></h3>
+                <p class="text-yellow-500 font-semibold" th:text="'$' + ${car.price}"></p>
+                <p class="text-gray-400" th:text="${car.status}"></p>
+                <p class="text-gray-400" th:text="'Year: ' + ${car.year}"></p>
+                <button class="mt-4 p-2 bg-yellow-500 text-black font-bold rounded-md w-full hover:bg-yellow-600">
+                    View Details
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+</body>
+</html>
