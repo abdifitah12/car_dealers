@@ -1,8 +1,10 @@
 package com.example.car.dealer.entity;
 
+import com.example.car.dealer.carEnum.CarStatus;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -12,7 +14,7 @@ public class Car {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // Ensure this field exists and is public
+    private Long id;
 
     @Column(nullable = false, length = 50)
     private String brand;
@@ -20,25 +22,32 @@ public class Car {
     @Column(nullable = false, length = 50)
     private String model;
 
-
-
-
-
     @ElementCollection
     @CollectionTable(name = "car_images", joinColumns = @JoinColumn(name = "car_id"))
-    @Column(name = "image_url")
-    private List<String> images;
+    @Column(name = "image_data", columnDefinition = "LONGBLOB")
+    private List<byte[]> images = new ArrayList<>();  // Store multiple images as BLOBs
 
     @Column(nullable = false)
     private Double price;
 
-    @Column(nullable = false, length = 20)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private CarStatus status;
 
     @Column(nullable = false)
-    private Integer year; // Changed from String to Integer
+    private Integer year;
 
-    public Car(Long id, String brand, String model, List<String> images, Double price, String status, Integer year) {
+    public List<String> getImagesBase64() {
+        List<String> base64Images = new ArrayList<>();
+        for (byte[] image : images) {
+            base64Images.add(java.util.Base64.getEncoder().encodeToString(image));
+        }
+        return base64Images;
+    }
+
+    public Car() {
+    }
+
+    public Car(Long id, String brand, String model, List<byte[]> images, Double price, CarStatus status, Integer year) {
         this.id = id;
         this.brand = brand;
         this.model = model;
@@ -47,8 +56,6 @@ public class Car {
         this.status = status;
         this.year = year;
     }
-
-    public Car() {}
 
     public Long getId() {
         return id;
@@ -74,11 +81,11 @@ public class Car {
         this.model = model;
     }
 
-    public List<String> getImages() {
+    public List<byte[]> getImages() {
         return images;
     }
 
-    public void setImages(List<String> images) {
+    public void setImages(List<byte[]> images) {
         this.images = images;
     }
 
@@ -90,11 +97,11 @@ public class Car {
         this.price = price;
     }
 
-    public String getStatus() {
+    public CarStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(CarStatus status) {
         this.status = status;
     }
 

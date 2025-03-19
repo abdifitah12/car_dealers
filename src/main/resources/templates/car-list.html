@@ -3,101 +3,175 @@
 <head>
     <title>Find Your Perfect Car</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.js"></script>
 </head>
+
 <body class="bg-gray-900 text-white">
 
-<!-- Navigation Bar -->
-<nav class="bg-black bg-opacity-75 p-4 fixed w-full z-10 top-0 shadow-lg">
-    <div class="container mx-auto flex justify-between items-center">
+<!-- ✅ Navigation Bar -->
+<nav class="bg-black p-4 fixed w-full z-10">
+    <div class="container mx-auto flex flex-wrap justify-between items-center">
         <a href="#" class="text-2xl font-bold text-white">Vehica</a>
-        <ul class="hidden md:flex space-x-6">
-            <li><a href="#" class="hover:text-yellow-500">Home</a></li>
-            <li><a href="#" class="hover:text-yellow-500">Inventory</a></li>
-            <li><a href="#" class="hover:text-yellow-500">Pages</a></li>
-            <li><a href="#" class="hover:text-yellow-500">Blog</a></li>
-            <li><a href="#" class="hover:text-yellow-500">Features</a></li>
-        </ul>
-        <div class="flex space-x-4">
-            <a href="#" class="border border-white px-4 py-2 rounded-md hover:bg-white hover:text-black">Log in</a>
-            <a href="#" class="bg-yellow-500 px-4 py-2 rounded-md hover:bg-yellow-600">+ Submit Vehicle</a>
-        </div>
+
+        <!-- 🔍 Search Filters -->
+        <form id="filterForm" class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <select id="statusDropdown" class="p-2 rounded bg-gray-700 text-white">
+                <option value="">All Status</option>
+                <option value="Used">Used</option>
+                <option value="New">New</option>
+            </select>
+
+            <select id="makeDropdown" class="p-2 rounded bg-gray-700 text-white">
+                <option value="">All Makes</option>
+                <option value="Toyota">Toyota</option>
+                <option value="BMW">BMW</option>
+                <option value="Audi">Audi</option>
+            </select>
+
+            <select id="modelDropdown" class="p-2 rounded bg-gray-700 text-white">
+                <option value="">MODEL</option>
+                <option value="Camry">Camry</option>
+                <option value="Civic">Civic</option>
+                <option value="Mustang">Mustang</option>
+            </select>
+
+            <select id="orderDropdown" class="p-2 rounded bg-gray-700 text-white">
+                <option value="asc">Price Low to High</option>
+                <option value="desc">Price High to Low</option>
+            </select>
+
+            <button type="button" onclick="fetchFilteredCars()" class="p-2 bg-yellow-500 text-black rounded hover:bg-yellow-600">
+                Search
+            </button>
+        </form>
+
+        <!-- 📩 Contact Button -->
+        <button onclick="openModal()" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-green-600">
+            Contact Us
+        </button>
     </div>
 </nav>
 
-<!-- Hero Section -->
-<header class="h-screen bg-cover bg-center flex items-center justify-center text-center" style="background-image: url('https://source.unsplash.com/1600x900/?luxury,cars');">
-    <div class="bg-black bg-opacity-60 p-10 rounded-lg w-full max-w-4xl">
-        <h1 class="text-5xl font-bold text-white">Find Your <span class="text-yellow-500">Perfect</span> Car</h1>
-        <div class="mt-6 bg-gray-800 bg-opacity-75 p-4 rounded-lg">
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                <!-- Condition Dropdown -->
-                <select class="p-3 rounded-md w-full bg-gray-900 text-white">
-                    <option>Used</option>
-                    <option>New</option>
-                    <option>Certified</option>
-                    <option>One Owner</option>
-                </select>
-
-                <!-- Make Dropdown -->
-                <select class="p-3 rounded-md w-full bg-gray-900 text-white">
-                    <option>All Makes</option>
-                    <option>Acura</option>
-                    <option>Toyota</option>
-                    <option>BMW</option>
-                    <option>Audi</option>
-                </select>
-
-                <!-- Model Dropdown -->
-                <select class="p-3 rounded-md w-full bg-gray-900 text-white">
-                    <option>MODEL</option>
-                    <option>Model X</option>
-                    <option>Model Y</option>
-                </select>
-
-                <!-- Order Dropdown -->
-                <select class="p-3 rounded-md w-full bg-gray-900 text-white">
-                    <option>ORDER</option>
-                    <option>Price Low to High</option>
-                    <option>Price High to Low</option>
-                </select>
-
-                <!-- Search Button -->
-                <button class="p-3 bg-yellow-500 text-black font-bold rounded-md w-full hover:bg-yellow-600">
-                    Search
-                </button>
-            </div>
-        </div>
-    </div>
-</header>
-
-<!-- Car Listings Section -->
-<!-- Car Listings Section -->
-<section class="py-10">
+<!-- 🚗 Car Listings -->
+<section class="py-20">
     <div class="container mx-auto">
-        <h2 class="text-3xl font-bold text-center mb-6">Available Cars</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Loop through the list of cars from the backend -->
-            <div th:each="car : ${cars}" class="bg-gray-800 p-4 rounded-lg shadow-lg">
+        <br><br><br>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div th:each="car : ${cars}" class="bg-gray-800 p-4 rounded-2xl shadow-lg">
 
-                <!-- Loop through multiple images with external URLs -->
-                <div th:each="image : ${car.images}">
-                    <img th:src="${image}" class="w-full h-40 object-cover rounded-md mb-4" alt="Car Image">
+                <!-- 🚗 Image Carousel -->
+                <div id="carousel-[[${car.id}]]" class="relative w-full" data-carousel="static">
+                    <div class="relative h-56 overflow-hidden rounded-lg md:h-72">
+                        <div th:each="image, iterStat : ${car.imagesBase64}"
+                             th:classappend="${iterStat.index == 0} ? 'block' : 'hidden'"
+                             class="hidden duration-700 ease-in-out"
+                             data-carousel-item>
+                            <img th:src="'data:image/jpeg;base64,' + ${image}"
+                                 class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+                                 alt="Car Image">
+                        </div>
+                    </div>
+
+                    <!-- Carousel Indicators -->
+                    <div class="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3 rtl:space-x-reverse">
+                        <button th:each="image, iterStat : ${car.imagesBase64}"
+                                type="button"
+                                class="w-3 h-3 rounded-full bg-gray-400"
+                                th:attr="data-carousel-slide-to=${iterStat.index}">
+                        </button>
+                    </div>
+
+                    <!-- Carousel Controls -->
+                    <button type="button" class="absolute top-0 left-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-prev>
+                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60">
+                            <svg class="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/>
+                            </svg>
+                        </span>
+                    </button>
+
+                    <button type="button" class="absolute top-0 right-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-next>
+                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60">
+                            <svg class="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                            </svg>
+                        </span>
+                    </button>
                 </div>
 
-
-                <h3 class="text-xl font-bold text-white" th:text="${car.brand} + ' ' + ${car.model}"></h3>
-                <p class="text-yellow-500 font-semibold" th:text="'$' + ${car.price}"></p>
-                <p class="text-gray-400" th:text="${car.status}"></p>
-                <p class="text-gray-400" th:text="'Year: ' + ${car.year}"></p>
-                <button class="mt-4 p-2 bg-yellow-500 text-black font-bold rounded-md w-full hover:bg-yellow-600">
-                    View Details
-                </button>
+                <!-- Car Details -->
+                <div class="mt-4 text-center">
+                    <h3 th:text="${car.brand + ' ' + car.model}" class="text-lg font-semibold"></h3>
+                    <p th:text="'$' + ${car.price}" class="text-yellow-500 font-medium"></p>
+                    <p th:text="${car.status}" class="uppercase text-gray-400"></p>
+                    <p th:text="'Year: ' + ${car.year}" class="text-sm text-gray-300"></p>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
+<!-- 📝 JavaScript -->
+<script>
+    function displayFilteredCars(cars) {
+        const container = document.querySelector(".grid");
+        container.innerHTML = ""; // Clear previous results
 
+        if (cars.length === 0) {
+            container.innerHTML = "<p class='text-center text-white'>No cars found</p>";
+            return;
+        }
+
+        cars.forEach(car => {
+            container.innerHTML += `
+            <div class="bg-gray-800 p-4 rounded-2xl shadow-lg">
+                <div class="flex space-x-2 overflow-x-auto no-scrollbar">
+                    ${car.images.map(image => `
+                        <div class="flex-none w-1/4">
+                            <img src="data:image/jpeg;base64,${image}" class="w-full h-48 object-cover rounded-lg">
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="mt-4 text-center">
+                    <h3 class="text-lg font-semibold">${car.brand} ${car.model}</h3>
+                    <p class="text-yellow-500 font-medium">$${car.price}</p>
+                    <p class="uppercase text-gray-400">${car.status}</p>
+                    <p class="text-sm text-gray-300">Year: ${car.year}</p>
+                </div>
+            </div>
+        `;
+        });
+    }
+
+    function fetchFilteredCars() {
+        const status = document.getElementById("statusDropdown").value.toUpperCase();
+        const make = document.getElementById("makeDropdown").value || null;
+        const model = document.getElementById("modelDropdown").value || null;
+        const order = document.getElementById("orderDropdown").value;
+
+        const queryParams = new URLSearchParams();
+        if (status) queryParams.append("status", status);
+        if (make) queryParams.append("make", make);
+        if (model) queryParams.append("model", model);
+        queryParams.append("order", order);
+
+        fetch(`/filter?${queryParams.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Filtered cars:", data);
+                displayFilteredCars(data);
+            })
+            .catch(error => console.error("Error fetching cars:", error));
+    }
+
+    function openModal() {
+        document.getElementById('contactModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('contactModal').classList.add('hidden');
+    }
+</script>
 
 </body>
 </html>

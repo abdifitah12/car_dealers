@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Contact List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+<div class="container mx-auto mt-10">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-semibold">Contact List</h2>
+
+        <!-- 🔍 Search Bar -->
+        <input type="text" id="searchInput" onkeyup="searchContacts()"
+               class="p-2 border rounded w-1/3"
+               placeholder="Search by name or email">
+    </div>
+
+    <!-- Contact Table -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white rounded-lg shadow-md">
+            <thead class="bg-gray-800 text-white">
+            <tr>
+                <th class="px-4 py-2">ID</th>
+                <th class="px-4 py-2">Name</th>
+                <th class="px-4 py-2">Email</th>
+                <th class="px-4 py-2">Message</th>
+                <th class="px-4 py-2">Phone</th>
+                <th class="px-4 py-2">Address</th>
+                <th class="px-4 py-2">Actions</th>
+            </tr>
+            </thead>
+            <tbody id="contactTable">
+            <tr th:each="contact : ${contacts}" class="border-b">
+                <td class="px-4 py-2" th:text="${contact.id}"></td>
+                <td class="px-4 py-2" th:text="${contact.name}"></td>
+                <td class="px-4 py-2" th:text="${contact.email}"></td>
+                <td class="px-4 py-2 truncate max-w-xs" th:text="${contact.message}"></td>
+                <td class="px-4 py-2" th:text="${contact.phone}"></td>
+                <td class="px-4 py-2" th:text="${contact.address}"></td>
+                <td class="px-4 py-2">
+                    <form th:action="@{/contacts/delete/{id}(id=${contact.id})}" method="post"
+                          onsubmit="return confirm('Are you sure you want to delete this contact?')">
+                        <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex justify-center mt-4">
+        <button id="prevPage" class="px-3 py-2 bg-gray-500 text-white rounded mx-1" onclick="prevPage()">Prev</button>
+        <span id="pageInfo" class="text-gray-700 mx-2">Page 1</span>
+        <button id="nextPage" class="px-3 py-2 bg-gray-500 text-white rounded mx-1" onclick="nextPage()">Next</button>
+    </div>
+</div>
+
+<!-- 📝 JavaScript -->
+<script>
+    let currentPage = 1;
+    const rowsPerPage = 5;
+
+    function searchContacts() {
+        const filter = document.getElementById("searchInput").value.toLowerCase();
+        const rows = document.querySelectorAll("#contactTable tr");
+
+        rows.forEach(row => {
+            const name = row.cells[1].textContent.toLowerCase();
+            const email = row.cells[2].textContent.toLowerCase();
+            row.style.display = name.includes(filter) || email.includes(filter) ? "" : "none";
+        });
+    }
+
+    function paginateTable() {
+        const rows = document.querySelectorAll("#contactTable tr");
+        rows.forEach((row, index) => {
+            row.style.display = (index >= (currentPage - 1) * rowsPerPage && index < currentPage * rowsPerPage) ? "" : "none";
+        });
+
+        document.getElementById("pageInfo").textContent = `Page ${currentPage}`;
+        document.getElementById("prevPage").disabled = currentPage === 1;
+        document.getElementById("nextPage").disabled = currentPage * rowsPerPage >= rows.length;
+    }
+
+    function nextPage() {
+        currentPage++;
+        paginateTable();
+    }
+
+    function prevPage() {
+        if (currentPage > 1) currentPage--;
+        paginateTable();
+    }
+
+    document.addEventListener("DOMContentLoaded", paginateTable);
+</script>
+
+</body>
+</html>

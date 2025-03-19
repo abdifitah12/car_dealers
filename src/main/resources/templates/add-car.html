@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add New Car</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white">
+
+<nav class="bg-black p-4">
+    <div class="container mx-auto flex justify-between">
+        <a href="/" class="text-2xl font-bold text-white">Vehica</a>
+        <a th:href="@{/cars}" class="border px-4 py-2 rounded hover:bg-white hover:text-black">Car List</a>
+    </div>
+</nav>
+
+<section class="py-10">
+    <div class="container mx-auto bg-gray-800 p-6 rounded-lg">
+        <h2 class="text-2xl font-bold text-center mb-6">Add New Car</h2>
+
+        <form th:action="@{/cars/add}" th:object="${car}" method="post" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="text" th:field="*{brand}" placeholder="Brand" required class="p-3 rounded bg-gray-700 text-white">
+            <input type="text" th:field="*{model}" placeholder="Model" required class="p-3 rounded bg-gray-700 text-white">
+            <input type="number" th:field="*{price}" placeholder="Price" required class="p-3 rounded bg-gray-700 text-white">
+            <input type="number" th:field="*{year}" placeholder="Year" required class="p-3 rounded bg-gray-700 text-white">
+
+            <select th:field="*{status}" class="p-3 rounded bg-gray-700 text-white" required>
+                <option value="">Select Status</option>
+                <option value="NEW">New</option>
+                <option value="USED">Used</option>
+            </select>
+
+            <label class="text-white col-span-full">Upload Images:</label>
+            <input type="file" name="imageFiles" accept="image/*" multiple class="p-3 rounded bg-gray-700 text-white col-span-full">
+
+            <button type="submit" class="p-3 bg-yellow-500 text-black rounded hover:bg-yellow-600 col-span-full">
+                Add Car
+            </button>
+        </form>
+    </div>
+</section>
+
+</body>
+</html>

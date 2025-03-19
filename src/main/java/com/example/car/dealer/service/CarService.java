@@ -18,13 +18,7 @@ public class CarService {
     }
 
     // Fetch sorted cars based on status and order type
-    public List<Car> getCarsByStatus(String status, String order) {
-        if ("asc".equalsIgnoreCase(order)) {
-            return carRepository.findByStatusOrderByPriceAsc(status);
-        } else {
-            return carRepository.findByStatusOrderByPriceDesc(status);
-        }
-    }
+
 
     public List<String> getAllCarMakes() {
         return carRepository.findAll().stream()
@@ -40,4 +34,6 @@ public class CarService {
     public void deleteCar(Long id) {
         carRepository.deleteById(id);
     }
+
+
 }
