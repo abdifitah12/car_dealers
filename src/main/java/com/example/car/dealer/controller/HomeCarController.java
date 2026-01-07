@@ -1,18 +1,16 @@
 package com.example.car.dealer.controller;
 
 import com.example.car.dealer.carEnum.CarStatus;
+import com.example.car.dealer.dto.CarResponse;
 import com.example.car.dealer.entity.Car;
 import com.example.car.dealer.entity.Contact;
 import com.example.car.dealer.repository.CarRepository;
+import com.example.car.dealer.service.CarResponseService;
 import com.example.car.dealer.service.CarService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,56 +19,75 @@ import java.util.List;
 @RequestMapping
 public class HomeCarController {
 
-    @Autowired
-    private CarService carService;
+    private final CarService carService;
+    private final CarRepository carRepository;
+    private final CarResponseService carResponseService;
 
-    @Autowired
-    private CarRepository carRepository;
+    public HomeCarController(CarService carService,
+                             CarRepository carRepository,
+                             CarResponseService carResponseService) {
+        this.carService = carService;
+        this.carRepository = carRepository;
+        this.carResponseService = carResponseService;
+    }
 
+    // ================= HOME PAGE =================
     @GetMapping
     public String getAllCars(Model model) {
+
         List<Car> cars = carService.getAllCars();
-        model.addAttribute("cars", cars);
+        List<CarResponse> carDtos = carResponseService.toDtoList(cars);
+
+        model.addAttribute("cars", carDtos);
         model.addAttribute("contact", new Contact());
 
-        // Fetch unique car makes for the dropdown
+        // dropdown makes
         List<String> makes = carService.getAllCarMakes();
         model.addAttribute("makes", makes);
 
         return "car-list";
     }
 
-
-    // GET request to fetch cars by status with sorting order
-
-
+    // ================= CONTACT PAGE =================
     @GetMapping("/contact")
     public String showContactForm(Model model) {
         model.addAttribute("contact", new Contact());
-        return "contact-form"; // Ensure this matches your Thymeleaf template name
+        return "contact-form";
     }
 
+    // ================= MODELS BY MAKE =================
+    @GetMapping("/models")
+    @ResponseBody
+    public List<String> getModels(@RequestParam String make) {
+        return carService.getModelsByMake(make);
+    }
+
+    // ================= FILTER ENDPOINT =================
     @GetMapping("/filter")
-    public ResponseEntity<List<Car>> filterCars(
+    @ResponseBody
+    public ResponseEntity<List<CarResponse>> filterCars(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String make,
             @RequestParam(required = false) String model,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
             @RequestParam(defaultValue = "asc") String order) {
 
-        // Convert status to Enum
         CarStatus carStatus = null;
-        if (status != null && !status.isEmpty()) {
+        if (status != null && !status.isBlank()) {
             try {
-                carStatus = CarStatus.valueOf(status.toUpperCase());
+                carStatus = CarStatus.valueOf(status.trim().toUpperCase()); // NEW/USED
             } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest().body(Collections.emptyList());
+                return ResponseEntity.badRequest().body(List.of());
             }
         }
 
-        List<Car> filteredCars = carRepository.findByFilters(carStatus, make, model, order);
-        return ResponseEntity.ok(filteredCars);
-    }
+        List<Car> cars = "desc".equalsIgnoreCase(order)
+                ? carRepository.filterDesc(carStatus, make, model, minPrice, maxPrice)
+                : carRepository.filterAsc(carStatus, make, model, minPrice, maxPrice);
 
+        return ResponseEntity.ok(carResponseService.toDtoList(cars));
+    }
 
 
 }

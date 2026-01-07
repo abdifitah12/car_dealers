@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Contact</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+
+<div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
+    <h2 class="text-2xl font-semibold mb-4">Edit Contact</h2>
+
+    <form th:action="@{/update/{id}(id=${contact.id})}" method="post">
+        <input type="hidden" name="_method" value="put"/>
+
+        <div class="mb-4">
+            <label class="block">Name</label>
+            <input type="text" name="name" th:value="${contact.name}" class="w-full border px-3 py-2 rounded" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="block">Email</label>
+            <input type="email" name="email" th:value="${contact.email}" class="w-full border px-3 py-2 rounded" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="block">Message</label>
+            <textarea name="message" class="w-full border px-3 py-2 rounded" rows="3"
+                      th:text="${contact.message}"></textarea>
+        </div>
+
+        <div class="mb-4">
+            <label class="block">Phone</label>
+            <input type="text" name="phone" th:value="${contact.phone}" class="w-full border px-3 py-2 rounded">
+        </div>
+
+        <div class="mb-4">
+            <label class="block">Address</label>
+            <input type="text" name="address" th:value="${contact.address}" class="w-full border px-3 py-2 rounded">
+        </div>
+
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Update
+        </button>
+        <a href="/list" class="bg-red-600 text-white px-4 py-2 rounded ">
+            Cancel
+        </a>
+    </form>
+</div>
+
+</body>
+</html>

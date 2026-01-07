@@ -61,43 +61,54 @@
 
 <!-- 📝 JavaScript -->
 <script>
-    let currentPage = 1;
-    const rowsPerPage = 5;
+    function displayFilteredCars(cars) {
+        const container = document.querySelector(".grid");
+        container.innerHTML = "";
 
-    function searchContacts() {
-        const filter = document.getElementById("searchInput").value.toLowerCase();
-        const rows = document.querySelectorAll("#contactTable tr");
+        if (!cars || cars.length === 0) {
+            container.innerHTML = "<p class='text-center text-white'>No cars found</p>";
+            return;
+        }
 
-        rows.forEach(row => {
-            const name = row.cells[1].textContent.toLowerCase();
-            const email = row.cells[2].textContent.toLowerCase();
-            row.style.display = name.includes(filter) || email.includes(filter) ? "" : "none";
+        cars.forEach(car => {
+            container.innerHTML += `
+      <div class="bg-gray-800 p-4 rounded-2xl shadow-lg">
+        <div class="flex space-x-2 overflow-x-auto no-scrollbar">
+          ${(car.imagesBase64 || []).map(image => `
+            <div class="flex-none w-1/4">
+              <img src="data:image/jpeg;base64,${image}" class="w-full h-48 object-cover rounded-lg">
+            </div>
+          `).join('')}
+        </div>
+        <div class="mt-4 text-center">
+          <h3 class="text-lg font-semibold">${car.brand} ${car.model}</h3>
+          <p class="text-yellow-500 font-medium">$${car.price}</p>
+          <p class="uppercase text-gray-400">${car.status}</p>
+          <p class="text-sm text-gray-300">Year: ${car.year}</p>
+        </div>
+      </div>`;
         });
     }
 
-    function paginateTable() {
-        const rows = document.querySelectorAll("#contactTable tr");
-        rows.forEach((row, index) => {
-            row.style.display = (index >= (currentPage - 1) * rowsPerPage && index < currentPage * rowsPerPage) ? "" : "none";
-        });
+    function fetchFilteredCars() {
+        const status = document.getElementById("statusDropdown").value.toUpperCase();
+        const make = document.getElementById("makeDropdown").value || null;
+        const model = document.getElementById("modelDropdown").value || null;
+        const order = document.getElementById("orderDropdown").value;
 
-        document.getElementById("pageInfo").textContent = `Page ${currentPage}`;
-        document.getElementById("prevPage").disabled = currentPage === 1;
-        document.getElementById("nextPage").disabled = currentPage * rowsPerPage >= rows.length;
+        const queryParams = new URLSearchParams();
+        if (status) queryParams.append("status", status);
+        if (make) queryParams.append("make", make);
+        if (model) queryParams.append("model", model);
+        queryParams.append("order", order);
+
+        fetch(`/filter?${queryParams.toString()}`)
+            .then(r => r.json())
+            .then(data => displayFilteredCars(data))
+            .catch(err => console.error(err));
     }
-
-    function nextPage() {
-        currentPage++;
-        paginateTable();
-    }
-
-    function prevPage() {
-        if (currentPage > 1) currentPage--;
-        paginateTable();
-    }
-
-    document.addEventListener("DOMContentLoaded", paginateTable);
 </script>
+
 
 </body>
 </html>
