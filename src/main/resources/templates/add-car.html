@@ -8,8 +8,14 @@
 
 <nav class="bg-black p-4">
     <div class="container mx-auto flex justify-between">
-        <a href="/" class="text-2xl font-bold text-white">Vehica</a>
-        <a th:href="@{/cars}" class="border px-4 py-2 rounded hover:bg-white hover:text-black">Car List</a>
+        <a th:href="@{/}" class="border px-4 py-2 rounded hover:bg-white hover:text-black">
+            Car List
+        </a>
+
+        <a th:href="@{/admin/cars}" class="border px-4 py-2 rounded hover:bg-white hover:text-black">
+            Update or Delete
+        </a>
+
     </div>
 </nav>
 

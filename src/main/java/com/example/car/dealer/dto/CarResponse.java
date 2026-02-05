@@ -11,5 +11,6 @@ public class CarResponse {
     private Double price;
     private String status;
     private Integer year;
+    private String availability;
     private List<String> imagesBase64; // ✅ frontend uses this
 }

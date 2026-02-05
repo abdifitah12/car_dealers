@@ -41,6 +41,12 @@ public class LoginController {
         }
         return "register";
     }
+
+    @GetMapping("/forgot-password")
+    public String showForgotPasswordPage() {
+        return "forgot-password"; // forgot-password.html
+    }
+
 }
 
 

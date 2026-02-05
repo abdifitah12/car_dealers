@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Update Car</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white">
+
+<nav class="bg-black p-4">
+    <div class="container mx-auto flex items-center justify-between">
+        <a th:href="@{/admin/cars}" class="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600">
+            ← Back to Admin
+        </a>
+        <a th:href="@{/logout}" class="px-4 py-2 rounded bg-red-600 hover:bg-red-700">
+            Logout
+        </a>
+    </div>
+</nav>
+
+<section class="py-10">
+    <div class="container mx-auto px-4 max-w-4xl">
+
+        <div class="bg-gray-800 border border-white/10 rounded-2xl shadow-xl p-6">
+            <h1 class="text-3xl font-bold mb-2">Update Car</h1>
+            <p class="text-gray-300 mb-6">Edit details and save changes.</p>
+
+            <form th:action="@{/admin/cars/{id}/edit(id=${car.id})}"
+                  th:object="${car}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <input th:field="*{brand}" placeholder="Brand" required
+                       class="p-3 rounded-xl bg-gray-700 text-white border border-white/10 focus:ring-2 focus:ring-yellow-500/60 outline-none" />
+
+                <input th:field="*{model}" placeholder="Model" required
+                       class="p-3 rounded-xl bg-gray-700 text-white border border-white/10 focus:ring-2 focus:ring-yellow-500/60 outline-none" />
+
+                <input th:field="*{price}" type="number" step="0.01" placeholder="Price" required
+                       class="p-3 rounded-xl bg-gray-700 text-white border border-white/10 focus:ring-2 focus:ring-yellow-500/60 outline-none" />
+
+                <input th:field="*{year}" type="number" placeholder="Year" required
+                       class="p-3 rounded-xl bg-gray-700 text-white border border-white/10 focus:ring-2 focus:ring-yellow-500/60 outline-none" />
+
+                <select th:field="*{status}" required
+                        class="p-3 rounded-xl bg-gray-700 text-white border border-white/10 focus:ring-2 focus:ring-yellow-500/60 outline-none md:col-span-2">
+                    <option value="NEW">New</option>
+                    <option value="USED">Used</option>
+                </select>
+
+                <div class="md:col-span-2">
+                    <label class="block mb-2 text-gray-200 font-semibold">Upload new images (optional)</label>
+                    <input type="file" name="imageFiles" multiple accept="image/*"
+                           class="w-full p-3 rounded-xl bg-gray-700 text-white border border-white/10" />
+                    <p class="text-xs text-gray-300 mt-2">
+                        Leave empty if you don’t want to change images.
+                    </p>
+                </div>
+
+                <button type="submit"
+                        class="md:col-span-2 p-3 rounded-xl bg-yellow-500 text-black font-bold hover:bg-yellow-600">
+                    Save Changes
+                </button>
+
+            </form>
+        </div>
+
+    </div>
+</section>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.example.car.dealer.entity;
 
+import com.example.car.dealer.carEnum.CarAvailability;
 import com.example.car.dealer.carEnum.CarStatus;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -23,15 +24,37 @@ public class Car {
     @Column(nullable = false, length = 50)
     private String model;
 
-    // ✅ Correct relationship for table car_images(id, car_id, image_data)
-    @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+
+    @Column(length = 30)
+    private String transmission;      // Automatic / Manual
+
+    @Column(length = 30)
+    private String fuelType;          // Gas / Hybrid / Electric
+
+
+
+    @Column(length = 120)
+    private String location;
+
+    // ✅ Images table relation
+    @OneToMany(mappedBy = "car",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER)
     private List<CarImage> images = new ArrayList<>();
 
     @Column(nullable = false)
     private Double price;
 
+    // ✅ NEW / USED
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private CarStatus status;
+
+    // ✅ AVAILABLE / SOLD
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CarAvailability availability = CarAvailability.AVAILABLE;
 
     @Column(nullable = false)
     private Integer year;

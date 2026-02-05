@@ -16,6 +16,7 @@ public class CarResponseService {
         dto.setModel(car.getModel());
         dto.setPrice(car.getPrice());
         dto.setStatus(car.getStatus() == null ? null : car.getStatus().name());
+        dto.setAvailability(car.getAvailability() == null ? null : car.getAvailability().name());
         dto.setYear(car.getYear());
         dto.setImagesBase64(car.getImagesBase64());
         return dto;

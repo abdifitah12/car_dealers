@@ -12,11 +12,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 
 @Controller
-@RequestMapping
+@RequestMapping("/")
 public class HomeCarController {
 
     private final CarService carService;
@@ -39,21 +38,14 @@ public class HomeCarController {
         List<CarResponse> carDtos = carResponseService.toDtoList(cars);
 
         model.addAttribute("cars", carDtos);
-        model.addAttribute("contact", new Contact());
 
         // dropdown makes
-        List<String> makes = carService.getAllCarMakes();
-        model.addAttribute("makes", makes);
+        model.addAttribute("makes", carService.getAllCarMakes());
 
         return "car-list";
     }
 
-    // ================= CONTACT PAGE =================
-    @GetMapping("/contact")
-    public String showContactForm(Model model) {
-        model.addAttribute("contact", new Contact());
-        return "contact-form";
-    }
+
 
     // ================= MODELS BY MAKE =================
     @GetMapping("/models")
@@ -75,19 +67,14 @@ public class HomeCarController {
 
         CarStatus carStatus = null;
         if (status != null && !status.isBlank()) {
-            try {
-                carStatus = CarStatus.valueOf(status.trim().toUpperCase()); // NEW/USED
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest().body(List.of());
-            }
+            carStatus = CarStatus.valueOf(status.trim().toUpperCase()); // NEW/USED
         }
 
         List<Car> cars = "desc".equalsIgnoreCase(order)
-                ? carRepository.filterDesc(carStatus, make, model, minPrice, maxPrice)
-                : carRepository.filterAsc(carStatus, make, model, minPrice, maxPrice);
+                ? carRepository.filterDescAvailable(carStatus, make, model, minPrice, maxPrice)
+                : carRepository.filterAscAvailable(carStatus, make, model, minPrice, maxPrice);
+
 
         return ResponseEntity.ok(carResponseService.toDtoList(cars));
     }
-
-
 }

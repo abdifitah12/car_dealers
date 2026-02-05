@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Contact Us</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white">
+
+<nav class="bg-black p-4">
+    <div class="container mx-auto flex justify-between items-center">
+        <a href="/" class="text-2xl font-bold">Car Sale</a>
+        <a th:href="@{/}" class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
+            Back
+        </a>
+
+    </div>
+</nav>
+
+<section class="py-10">
+    <div class="container mx-auto px-4 max-w-5xl">
+
+        <h1 class="text-3xl font-bold mb-6 text-center">Contact Information</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- ✅ Contact Info -->
+            <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
+                <h2 class="text-xl font-semibold mb-4">Reach us</h2>
+
+                <div class="space-y-3 text-gray-200">
+                    <p>
+                        <span class="font-semibold">Phone:</span>
+                        <a class="text-yellow-400 hover:underline"
+                           th:href="'tel:' + ${phone}"
+                           th:text="${phone}">(206) 326-8924</a>
+                    </p>
+
+                    <p>
+                        <span class="font-semibold">Email:</span>
+                        <a class="text-yellow-400 hover:underline"
+                           th:href="'mailto:' + ${email}"
+                           th:text="${email}">abdihaashin275@gmail.com</a>
+                    </p>
+
+                    <p>
+                        <span class="font-semibold">Address:</span><br>
+                        <span th:text="${address}">SeaTac, WA, United States</span>
+                    </p>
+
+                    <p th:if="${param.success}" class="text-green-400 font-semibold">
+                        ✅ Message sent successfully!
+                    </p>
+                </div>
+            </div>
+
+            <!-- ✅ Map -->
+            <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
+                <h2 class="text-xl font-semibold mb-4">Location</h2>
+                <div class="w-full h-80 overflow-hidden rounded-xl">
+                    <iframe class="w-full h-full"
+                            th:src="'https://www.google.com/maps?q=' + ${mapQuery} + '&output=embed'"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ Optional Contact Form -->
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-lg mt-6">
+            <h2 class="text-xl font-semibold mb-4">Send a message</h2>
+
+            <form th:action="@{/contact}" method="post" th:object="${contact}" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input th:field="*{name}" placeholder="Name" required class="p-3 rounded bg-gray-700 text-white w-full" />
+                <input th:field="*{email}" placeholder="Email" type="email" required class="p-3 rounded bg-gray-700 text-white w-full" />
+                <input th:field="*{phone}" placeholder="Phone" required class="p-3 rounded bg-gray-700 text-white w-full" />
+                <input th:field="*{address}" placeholder="Your Address" required class="p-3 rounded bg-gray-700 text-white w-full" />
+
+                <textarea th:field="*{message}" placeholder="Message" rows="4" required
+                          class="p-3 rounded bg-gray-700 text-white w-full md:col-span-2"></textarea>
+
+                <button type="submit"
+                        class="bg-yellow-500 text-black px-5 py-3 rounded hover:bg-yellow-600 md:col-span-2">
+                    Send
+                </button>
+            </form>
+        </div>
+
+    </div>
+</section>
+
+</body>
+</html>

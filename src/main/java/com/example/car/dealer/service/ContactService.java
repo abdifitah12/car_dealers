@@ -3,8 +3,6 @@ package com.example.car.dealer.service;
 import com.example.car.dealer.entity.Contact;
 import com.example.car.dealer.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,8 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContactService {
 
-    @Autowired
-    private  ContactRepository contactRepository;
+    private final ContactRepository contactRepository;
 
     public Contact saveContact(Contact contact) {
         return contactRepository.save(contact);
@@ -28,4 +25,3 @@ public class ContactService {
         contactRepository.deleteById(id);
     }
 }
-
