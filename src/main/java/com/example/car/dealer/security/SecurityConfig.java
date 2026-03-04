@@ -14,14 +14,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // If you use forms + POST, keep CSRF enabled. (Default is enabled)
-                // If you get 403 on POST, tell me and we’ll fix properly.
-
                 .authorizeHttpRequests(auth -> auth
-
-                        // ✅ Public pages (no login required)
                         .requestMatchers(
-                                "/",            // your car list page (HomeCarController root)
+                                "/",
                                 "/login",
                                 "/register",
                                 "/forgot-password",
@@ -34,22 +29,28 @@ public class SecurityConfig {
                                 "/static/**"
                         ).permitAll()
 
-                        // ✅ Protect add-car page (must login)
                         .requestMatchers("/cars/add", "/cars/add/**").authenticated()
 
-                        // ✅ Everything else (optional)
                         .anyRequest().authenticated()
                 )
 
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/cars/add", true)   // after login go to car list (or change to /cars/add)
+                        .defaultSuccessUrl("/cars/add", true)
                         .permitAll()
+                )
+
+                // ✅ Remember-me for 3 hours
+                .rememberMe(remember -> remember
+                        .key("car-dealer-remember-me-key") // any random string
+                        .tokenValiditySeconds(60 * 60 * 3) // 3 hours
+                        .rememberMeParameter("remember-me") // matches checkbox name in login.html
                 )
 
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
+                        .deleteCookies("JSESSIONID", "remember-me") // ✅ clear both
                         .permitAll()
                 );
 

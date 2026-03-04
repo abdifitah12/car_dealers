@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sold Cars</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white">
+
+<!-- 🔹 Top Navbar -->
+<nav class="bg-black/80 backdrop-blur border-b border-white/10 sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <a th:href="@{/}" class="text-xl font-bold">Car Sale</a>
+            <span class="text-xs px-3 py-1 rounded-full bg-red-600 text-white">
+                SOLD CARS
+            </span>
+        </div>
+
+        <a th:href="@{/admin/cars}"
+           class="px-4 py-2 rounded-lg bg-yellow-500 text-black hover:bg-yellow-600 font-semibold">
+            ← Back to Admin
+        </a>
+    </div>
+</nav>
+
+<!-- 🔹 Page Content -->
+<section class="container mx-auto px-4 py-8">
+
+    <h1 class="text-3xl font-bold mb-6 text-red-400">Sold Cars List</h1>
+
+    <div class="overflow-hidden rounded-2xl border border-white/10 bg-gray-800 shadow-lg">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-black/40 text-gray-200 text-sm">
+                <tr>
+                    <th class="px-4 py-3">Car</th>
+                    <th class="px-4 py-3">Year</th>
+                    <th class="px-4 py-3">Price</th>
+                    <th class="px-4 py-3">Transmission</th>
+                    <th class="px-4 py-3">Fuel</th>
+                    <th class="px-4 py-3">Location</th>
+                </tr>
+                </thead>
+
+                <tbody class="divide-y divide-white/10">
+
+                <tr th:each="car : ${cars}" class="hover:bg-white/5 transition">
+
+                    <!-- Car Info -->
+                    <td class="px-4 py-4">
+                        <div class="flex items-center gap-4">
+
+                            <div class="w-16 h-14 rounded-xl overflow-hidden bg-gray-700">
+                                <img th:if="${car.imagesBase64 != null && #lists.size(car.imagesBase64) > 0}"
+                                     th:src="'data:image/jpeg;base64,' + ${car.imagesBase64[0]}"
+                                     class="w-full h-full object-cover" />
+                                <div th:if="${car.imagesBase64 == null || #lists.size(car.imagesBase64) == 0}"
+                                     class="w-full h-full grid place-items-center text-xs text-gray-400">
+                                    No image
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="font-semibold text-lg text-red-300"
+                                     th:text="${car.brand + ' ' + car.model}">
+                                    Toyota Camry
+                                </div>
+                                <div class="text-sm text-gray-400">
+                                    ID: <span th:text="${car.id}">1</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </td>
+
+                    <td class="px-4 py-4" th:text="${car.year}">2020</td>
+
+                    <td class="px-4 py-4 text-red-300 font-semibold"
+                        th:text="'$' + ${car.price}">
+                        $15000
+                    </td>
+
+                    <td class="px-4 py-4" th:text="${car.transmission}">Automatic</td>
+
+                    <td class="px-4 py-4" th:text="${car.fuelType}">Gasoline</td>
+
+                    <td class="px-4 py-4" th:text="${car.location}">Seattle</td>
+
+                </tr>
+
+                <!-- If empty -->
+                <tr th:if="${cars == null || #lists.isEmpty(cars)}">
+                    <td colspan="6" class="px-4 py-10 text-center text-gray-400">
+                        No sold cars found.
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

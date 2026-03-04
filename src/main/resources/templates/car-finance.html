@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Car Finance</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen">
+
+<nav class="bg-black/80 border-b border-white/10 sticky top-0">
+    <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+        <a th:href="@{/admin/cars}" class="text-lg font-bold">← Back</a>
+        <div class="text-sm text-gray-300">Finance Setup</div>
+    </div>
+</nav>
+
+<section class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="rounded-2xl border border-white/10 bg-gray-800 p-6 shadow-lg">
+
+        <div class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+                <h1 class="text-2xl font-extrabold" th:text="${car.brand + ' ' + car.model}">Car</h1>
+                <p class="text-gray-300 mt-1">
+                    Price:
+                    <span class="text-yellow-300 font-semibold"
+                          th:text="'$' + ${#numbers.formatDecimal(car.price,0,'COMMA',0,'POINT')}">$0</span>
+                </p>
+            </div>
+
+            <div class="text-sm text-gray-300">
+                Car ID: <span class="text-white font-semibold" th:text="${car.id}">1</span>
+            </div>
+        </div>
+
+        <form class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4"
+              th:action="@{/admin/cars/{id}/finance(id=${car.id})}" method="post">
+
+            <!-- ✅ Finance Person Info -->
+            <div class="md:col-span-3 mt-2">
+                <h2 class="text-lg font-bold">Finance Person</h2>
+                <p class="text-sm text-gray-300">Customer information (who is financing this car)</p>
+            </div>
+
+            <div>
+                <label class="block text-sm text-gray-300 mb-1">Full Name</label>
+                <input name="fullName" type="text" required
+                       th:value="${finance.person != null ? finance.person.fullName : ''}"
+                       class="w-full p-3 rounded-xl bg-gray-900 border border-white/10 focus:ring-2 focus:ring-yellow-500/60" />
+            </div>
+
+            <div>
+                <label class="block text-sm text-gray-300 mb-1">Phone</label>
+                <input name="phone" type="text" required
+                       th:value="${finance.person != null ? finance.person.phone : ''}"
+                       class="w-full p-3 rounded-xl bg-gray-900 border border-white/10 focus:ring-2 focus:ring-yellow-500/60" />
+            </div>
+
+            <div>
+                <label class="block text-sm text-gray-300 mb-1">Email</label>
+                <input name="email" type="email" required
+                       th:value="${finance.person != null ? finance.person.email : ''}"
+                       class="w-full p-3 rounded-xl bg-gray-900 border border-white/10 focus:ring-2 focus:ring-yellow-500/60" />
+            </div>
+
+            <div class="md:col-span-3">
+                <label class="block text-sm text-gray-300 mb-1">Address</label>
+                <input name="address" type="text"
+                       th:value="${finance.person != null ? finance.person.address : ''}"
+                       class="w-full p-3 rounded-xl bg-gray-900 border border-white/10 focus:ring-2 focus:ring-yellow-500/60" />
+            </div>
+
+            <div>
+                <label class="block text-sm text-gray-300 mb-1">Term (months)</label>
+                <select name="termMonths"
+                        class="w-full p-3 rounded-xl bg-gray-900 border border-white/10 focus:ring-2 focus:ring-yellow-500/60">
+                    <option value="36" th:selected="${finance.termMonths == 36}">36</option>
+                    <option value="48" th:selected="${finance.termMonths == 48}">48</option>
+                    <option value="60" th:selected="${finance.termMonths == 60}">60</option>
+                    <option value="72" th:selected="${finance.termMonths == 72}">72</option>
+                    <option value="84" th:selected="${finance.termMonths == 84}">84</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm text-gray-300 mb-1">APR (%)</label>
+                <input name="apr" type="number" step="0.01"
+                       th:value="${finance.apr != null ? finance.apr : 8.10}"
+                       class="w-full p-3 rounded-xl bg-gray-900 border border-white/10 focus:ring-2 focus:ring-yellow-500/60"
+                       placeholder="8.10" />
+            </div>
+
+            <div>
+                <label class="block text-sm text-gray-300 mb-1">Missed Months</label>
+                <input name="missedMonths" type="number" min="0"
+                       th:value="${finance.missedMonths != null ? finance.missedMonths : 0}"
+                       class="w-full p-3 rounded-xl bg-gray-900 border border-white/10 focus:ring-2 focus:ring-yellow-500/60"
+                       placeholder="0" />
+            </div>
+
+            <div>
+                <label class="block text-sm text-gray-300 mb-1">Down Payment ($)</label>
+                <input name="downPayment" type="number" step="0.01"
+                       th:value="${finance.downPayment != null ? finance.downPayment : 0}"
+                       class="w-full p-3 rounded-xl bg-gray-900 border border-white/10 focus:ring-2 focus:ring-yellow-500/60"
+                       placeholder="2000" />
+            </div>
+
+            <div class="md:col-span-3 flex justify-end gap-2 mt-2">
+                <a th:href="@{/admin/cars}"
+                   class="px-4 py-2 rounded-xl bg-gray-700 hover:bg-gray-600">Cancel</a>
+                <button type="submit"
+                        class="px-4 py-2 rounded-xl bg-yellow-500 text-black font-semibold hover:bg-yellow-600">
+                    Save Finance
+                </button>
+            </div>
+        </form>
+
+        <!-- ✅ Results preview (if finance exists) -->
+        <div th:if="${finance != null && finance.monthlyPayment != null}"
+             class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <div class="rounded-xl bg-black/25 border border-white/10 p-4">
+                <div class="text-xs text-gray-400">Monthly Payment</div>
+                <div class="text-xl font-extrabold text-yellow-300"
+                     th:text="'$' + ${#numbers.formatDecimal(finance.monthlyPayment,0,'COMMA',0,'POINT')}">$0</div>
+            </div>
+
+            <div class="rounded-xl bg-black/25 border border-white/10 p-4">
+                <div class="text-xs text-gray-400">Total Paid</div>
+                <div class="text-xl font-extrabold"
+                     th:text="'$' + ${#numbers.formatDecimal(finance.totalPaid,0,'COMMA',0,'POINT')}">$0</div>
+            </div>
+
+            <div class="rounded-xl bg-black/25 border border-white/10 p-4">
+                <div class="text-xs text-gray-400">Balance Owed</div>
+                <div class="text-xl font-extrabold text-red-200"
+                     th:text="'$' + ${#numbers.formatDecimal(finance.balanceOwed,0,'COMMA',0,'POINT')}">$0</div>
+            </div>
+        </div>
+
+        <!-- ✅✅✅ ADDED HERE: Pay Monthly Form -->
+        <div th:if="${finance != null && finance.id != null}" class="mt-6">
+            <h3 class="text-lg font-bold mb-2 text-emerald-300">Make a Payment</h3>
+
+            <form th:action="@{/admin/cars/finance/{financeId}/pay(financeId=${finance.id})}"
+                  method="post"
+                  class="flex flex-col sm:flex-row gap-2 sm:items-center">
+
+                <input name="paidAmount"
+                       type="number"
+                       step="0.01"
+                       min="1"
+                       placeholder="Enter paid amount"
+                       class="w-full sm:w-64 p-3 rounded-xl bg-gray-900 border border-white/10" />
+
+                <button type="submit"
+                        class="px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-semibold">
+                    Pay
+                </button>
+            </form>
+
+            <p class="text-xs text-gray-400 mt-2">
+                Tip: If paid amount is equal or greater than monthly payment, term months will reduce by 1.
+            </p>
+        </div>
+        <!-- ✅✅✅ END ADDED -->
+
+    </div>
+</section>
+
+</body>
+</html>

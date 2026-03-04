@@ -10,6 +10,13 @@
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-3xl font-semibold">Contact List</h2>
 
+
+
+        <a th:href="@{/admin/cars}"
+           class="px-4 py-2 rounded-lg bg-yellow-500 text-black hover:bg-yellow-600 font-semibold">
+            Back
+        </a>
+
         <!-- 🔍 Search Bar -->
         <input type="text" id="searchInput" onkeyup="searchContacts()"
                class="p-2 border rounded w-1/3"
@@ -35,11 +42,17 @@
                 <td class="px-4 py-2" th:text="${contact.id}"></td>
                 <td class="px-4 py-2" th:text="${contact.name}"></td>
                 <td class="px-4 py-2" th:text="${contact.email}"></td>
-                <td class="px-4 py-2 truncate max-w-xs" th:text="${contact.message}"></td>
+                <td class="px-4 py-2 truncate max-w-xs   cursor-pointer"
+                    th:text="${contact.message}"
+                    th:attr="data-message=${contact.message}"
+                    onclick="openMessage(this)">
+                </td>
+
+
                 <td class="px-4 py-2" th:text="${contact.phone}"></td>
                 <td class="px-4 py-2" th:text="${contact.address}"></td>
                 <td class="px-4 py-2">
-                    <form th:action="@{/contacts/delete/{id}(id=${contact.id})}" method="post"
+                    <form th:action="@{/contact/delete/{id}(id=${contact.id})}" method="post"
                           onsubmit="return confirm('Are you sure you want to delete this contact?')">
                         <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700">
                             Delete
@@ -58,6 +71,31 @@
         <button id="nextPage" class="px-3 py-2 bg-gray-500 text-white rounded mx-1" onclick="nextPage()">Next</button>
     </div>
 </div>
+
+<!-- Modal -->
+<!-- ✅ Full Message Modal -->
+<div id="messageModal"
+     class="fixed inset-0 hidden bg-black/70 items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl p-6">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-bold text-gray-900">Full Message</h2>
+            <button onclick="closeMessage()"
+                    class="text-gray-600 hover:text-black text-2xl leading-none">&times;</button>
+        </div>
+
+        <div class="mt-4">
+            <p id="fullMessageText" class="text-gray-800 whitespace-pre-wrap"></p>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+            <button onclick="closeMessage()"
+                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
 
 <!-- 📝 JavaScript -->
 <script>
@@ -107,6 +145,29 @@
             .then(data => displayFilteredCars(data))
             .catch(err => console.error(err));
     }
+
+    function openMessage(td) {
+        const msg = td.getAttribute("data-message") || "";
+        document.getElementById("fullMessageText").innerText = msg;
+
+        const modal = document.getElementById("messageModal");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+    }
+
+    function closeMessage() {
+        const modal = document.getElementById("messageModal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+    }
+
+    // optional: close when clicking outside the box
+    document.addEventListener("click", function(e) {
+        const modal = document.getElementById("messageModal");
+        if (!modal.classList.contains("hidden") && e.target === modal) {
+            closeMessage();
+        }
+    });
 </script>
 
 

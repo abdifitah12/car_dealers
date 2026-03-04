@@ -24,6 +24,8 @@ public interface CarRepository extends JpaRepository<Car, Long> {
             "ORDER BY c.model")
     List<String> findDistinctModelsByMakeAvailable(@Param("make") String make);
 
+
+
     // ✅ Home page: only available cars
     List<Car> findByAvailability(CarAvailability availability);
 

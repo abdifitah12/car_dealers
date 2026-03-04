@@ -4,213 +4,357 @@
     <title>Find Your Perfect Car</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* Smooth entry animation */
+        .reveal { opacity: 0; transform: translateY(12px); }
+        .reveal.show { opacity: 1; transform: translateY(0); transition: all .55s ease; }
+
+        /* Subtle shine on hover */
+        .shine::after{
+            content:"";
+            position:absolute;
+            inset:-2px;
+            background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.10) 40%, transparent 80%);
+            transform: translateX(-120%);
+            transition: transform .7s ease;
+            pointer-events:none;
+        }
+        .shine:hover::after{ transform: translateX(120%); }
+
+        /* Better focus ring for selects/buttons */
+        select:focus, button:focus { outline: none; }
+    </style>
 </head>
 
-<body class="bg-gray-900 text-white">
+<body class="min-h-screen text-white bg-[#0B1220] relative overflow-x-hidden">
+
+<!-- Background glow -->
+<div class="pointer-events-none absolute inset-0">
+    <div class="absolute -top-32 -left-32 w-[420px] h-[420px] bg-yellow-500/15 blur-3xl rounded-full"></div>
+    <div class="absolute top-32 -right-32 w-[520px] h-[520px] bg-cyan-500/10 blur-3xl rounded-full"></div>
+    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[260px] bg-indigo-500/10 blur-3xl rounded-full"></div>
+</div>
 
 <!-- ✅ Navigation Bar -->
-<nav class="bg-black p-4 fixed w-full z-10">
-    <div class="container mx-auto flex flex-wrap justify-between items-center gap-3">
+<nav class="fixed top-0 left-0 right-0 z-30 border-b border-white/10 bg-black/45 backdrop-blur-xl">
+    <div class="container mx-auto px-3 py-3 flex flex-wrap items-center justify-between gap-3">
 
-        <!-- 🔍 Search Filters -->
-        <form id="filterForm" class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-            <!-- ✅ MUST match enum: NEW / USED -->
-            <select id="statusDropdown" class="p-2 rounded bg-gray-700 text-white">
+        <!-- Left: title -->
+        <div class="flex items-center gap-3">
+            <a th:href="@{/}" class="text-lg sm:text-xl font-extrabold tracking-wide">
+                Car<span class="text-yellow-400">Sale</span>
+            </a>
+            <span class="hidden sm:inline-flex text-xs px-2 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200">
+                Find your perfect car
+            </span>
+        </div>
+
+        <!-- Filters -->
+        <form id="filterForm" class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+
+            <!-- NEW/USED -->
+            <select id="statusDropdown"
+                    class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white
+                           focus:ring-2 focus:ring-yellow-400/50">
                 <option value="">All Status</option>
                 <option value="USED">Used</option>
                 <option value="NEW">New</option>
             </select>
 
-            <!-- (Optional) if you have makes list from backend -->
-            <select id="makeDropdown" class="p-2 rounded bg-gray-700 text-white">
+            <!-- Make -->
+            <select id="makeDropdown"
+                    class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white
+                           focus:ring-2 focus:ring-yellow-400/50">
                 <option value="">All Makes</option>
                 <option th:each="m : ${makes}" th:value="${m}" th:text="${m}"></option>
             </select>
 
-            <select id="modelDropdown" class="p-2 rounded bg-gray-700 text-white">
+            <!-- Model -->
+            <select id="modelDropdown"
+                    class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white
+                           focus:ring-2 focus:ring-yellow-400/50">
                 <option value="">All Models</option>
-                <!-- If you want dynamic models later, we can do it -->
             </select>
 
-            <select id="orderDropdown" class="p-2 rounded bg-gray-700 text-white">
-                <option value="asc">Price Low to High</option>
-                <option value="desc">Price High to Low</option>
+            <!-- Order -->
+            <select id="orderDropdown"
+                    class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white
+                           focus:ring-2 focus:ring-yellow-400/50">
+                <option value="asc">Price Low → High</option>
+                <option value="desc">Price High → Low</option>
             </select>
 
+            <!-- Search -->
             <button type="button"
                     onclick="fetchFilteredCars()"
-                    class="p-2 bg-yellow-500 text-black rounded hover:bg-yellow-600">
+                    class="px-4 py-2 rounded-xl font-semibold text-black bg-yellow-400 hover:bg-yellow-300
+                           active:scale-[0.98] transition shadow-lg shadow-yellow-500/15">
                 Search
             </button>
 
+            <!-- Reset -->
             <button type="button"
                     onclick="resetFilters()"
-                    class="p-2 bg-gray-700 text-white rounded hover:bg-gray-600">
+                    class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10
+                           active:scale-[0.98] transition">
                 Reset
             </button>
         </form>
 
-        <!-- 📩 Contact Button -->
-        <a href="/contact" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-green-600">
+        <!-- Contact -->
+        <a th:href="@{/contact}"
+           class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10
+                  active:scale-[0.98] transition">
             Contact Us
         </a>
     </div>
 </nav>
 
-<!-- 🚗 Car Listings -->
-<section class="pt-24 pb-10">
+<!-- Page header -->
+<section class="pt-24 pb-6">
     <div class="container mx-auto px-3">
+        <div class="flex items-end justify-between flex-wrap gap-3">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                    Browse <span class="text-yellow-400">Cars</span>
+                </h1>
+                <p class="text-gray-300 mt-1">Filter by status, make, model, and price — fast and clean.</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-        <div id="carsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+<!-- 🚗 Car Listings -->
+<section class="pb-12">
+    <div class="container mx-auto px-3">
+        <div id="carsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
             <!-- ✅ Thymeleaf initial cars -->
-            <div th:each="car : ${cars}" class="bg-gray-800 p-4 rounded-2xl shadow-lg">
+            <div th:each="car : ${cars}"
+                 class="reveal relative overflow-hidden rounded-2xl border border-white/10 bg-white/5
+                        shadow-xl shadow-black/30 hover:shadow-2xl hover:-translate-y-1 transition duration-300 shine">
 
-                <!-- ✅ image (show first only, stable, no moving) -->
-                <div class="relative w-full h-56 md:h-72 overflow-hidden rounded-lg bg-gray-700">
-                    <img th:if="${#lists.size(car.imagesBase64) > 0}"
-                         th:src="'data:image/jpeg;base64,' + ${car.imagesBase64[0]}"
-                         class="w-full h-full object-cover"
-                         alt="Car Image"/>
+                <!-- ✅ Clickable image -> details page -->
+                <a th:href="@{/cars/{id}(id=${car.id})}" class="block">
+                    <div class="relative w-full h-56 md:h-64 overflow-hidden bg-black/20">
+                        <img th:if="${car.imagesBase64 != null && #lists.size(car.imagesBase64) > 0}"
+                             th:src="'data:image/jpeg;base64,' + ${car.imagesBase64[0]}"
+                             class="w-full h-full object-cover scale-100 hover:scale-105 transition duration-500"
+                             alt="Car Image" />
 
-                    <div th:if="${#lists.size(car.imagesBase64) == 0}"
-                         class="w-full h-full flex items-center justify-center text-gray-300">
-                        No Image
+                        <div th:if="${car.imagesBase64 == null || #lists.size(car.imagesBase64) == 0}"
+                             class="w-full h-full flex items-center justify-center text-gray-300">
+                            No Image
+                        </div>
+
+                        <!-- Top badges -->
+                        <div class="absolute top-3 left-3 flex gap-2">
+                            <!-- NEW/USED -->
+                            <span th:text="${car.status}"
+                                  class="text-[11px] px-2 py-1 rounded-full bg-black/50 border border-white/10 uppercase tracking-wide">
+                                USED
+                            </span>
+
+                            <!-- AVAILABLE/SOLD -->
+                            <span th:text="${car.availability}"
+                                  th:classappend="${car.availability == 'SOLD'} ? ' bg-red-500/20 text-red-200 border-red-500/30' : ' bg-emerald-500/15 text-emerald-200 border-emerald-500/25'"
+                                  class="text-[11px] px-2 py-1 rounded-full border uppercase tracking-wide">
+                                AVAILABLE
+                            </span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Content -->
+                <div class="p-4">
+                    <!-- ✅ also clickable title -->
+                    <a th:href="@{/cars/{id}(id=${car.id})}">
+                        <h3 class="text-lg font-bold leading-tight hover:text-yellow-300 transition"
+                            th:text="${car.brand + ' ' + car.model}">
+                            Toyota Camry SE Sedan
+                        </h3>
+                    </a>
+
+                    <p class="text-yellow-400 font-extrabold text-lg"
+                       th:text="'$' + ${#numbers.formatDecimal(car.price, 0, 'COMMA', 0, 'POINT')}">
+                        $0
+                    </p>
+
+                    <p class="text-xs text-gray-300"
+                           th:text="'Year: ' + ${car.year}">
+                            Year: 2025
+                        </p>
+                    </div>
+
+                    <div class="mt-3 space-y-1 text-sm text-gray-200/90">
+                        <p th:if="${car.transmission != null}">
+                            <span class="text-gray-400">Transmission:</span>
+                            <span th:text="${car.transmission}"></span>
+                        </p>
+                        <p th:if="${car.fuelType != null}">
+                            <span class="text-gray-400">Fuel:</span>
+                            <span th:text="${car.fuelType}"></span>
+                        </p>
+                        <p th:if="${car.location != null}">
+                            <span class="text-gray-400">Location:</span>
+                            <span th:text="${car.location}"></span>
+                        </p>
+                    </div>
+
+                    <!-- ✅ small action -->
+                    <div class="mt-4">
+                        <a th:href="@{/cars/{id}(id=${car.id})}"
+                           class="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl
+                                  bg-white/5 border border-white/10 hover:bg-white/10 transition">
+                            View Details →
+                        </a>
                     </div>
                 </div>
+            </div>
 
-                <div class="mt-4 text-center">
-                    <h3 th:text="${car.brand + ' ' + car.model}" class="text-lg font-semibold"></h3>
-                    <p th:text="'$' + ${car.price}" class="text-yellow-500 font-medium"></p>
-                    <p th:text="${car.status}" class="uppercase text-gray-400"></p>
-                    <p th:text="'Year: ' + ${car.year}" class="text-sm text-gray-300"></p>
-                </div>
+            <!-- Empty state -->
+            <div th:if="${cars == null || #lists.isEmpty(cars)}"
+                 class="col-span-full text-center text-gray-300 py-10">
+                No cars found.
             </div>
 
         </div>
     </div>
 </section>
 
-<!-- 📝 JavaScript -->
 <script>
-    // ✅ Render cars into the grid
+    // ✅ Reveal animation
+    function attachRevealObserver() {
+        const items = document.querySelectorAll(".reveal");
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach((e) => {
+                if (e.isIntersecting) e.target.classList.add("show");
+            });
+        }, { threshold: 0.12 });
+
+        items.forEach((el) => obs.observe(el));
+    }
+
+    // ✅ Render cars (filtered results) with SAME style + clickable details
     function renderCars(cars) {
         const container = document.getElementById("carsGrid");
-        if (!container) {
-            console.error("carsGrid not found in HTML");
-            return;
-        }
+        if (!container) return;
 
         container.innerHTML = "";
 
         if (!cars || cars.length === 0) {
-            container.innerHTML =
-                "<p class='text-center text-white col-span-full'>No cars found</p>";
+            container.innerHTML = "<p class='text-center text-white col-span-full'>No cars found</p>";
             return;
         }
 
         cars.forEach((car) => {
-            const firstImg =
-                car.imagesBase64 && car.imagesBase64.length > 0
-                    ? `data:image/jpeg;base64,${car.imagesBase64[0]}`
-                    : null;
+            const firstImg = car.imagesBase64 && car.imagesBase64.length > 0
+                ? `data:image/jpeg;base64,${car.imagesBase64[0]}`
+                : null;
+
+            const status = (car.status || "").toString();
+            const availability = (car.availability || "").toString();
+
+            const availBadge =
+                availability === "SOLD"
+                    ? "bg-red-500/20 text-red-200 border-red-500/30"
+                    : "bg-emerald-500/15 text-emerald-200 border-emerald-500/25";
 
             container.innerHTML += `
-        <div class="bg-gray-800 p-4 rounded-2xl shadow-lg">
-          <div class="relative w-full h-56 md:h-72 overflow-hidden rounded-lg bg-gray-700">
-            ${
+              <div class="reveal relative overflow-hidden rounded-2xl border border-white/10 bg-white/5
+                          shadow-xl shadow-black/30 hover:shadow-2xl hover:-translate-y-1 transition duration-300 shine">
+
+                <a href="/cars/${car.id}" class="block">
+                  <div class="relative w-full h-56 md:h-64 overflow-hidden bg-black/20">
+                    ${
                 firstImg
-                    ? `<img src="${firstImg}" class="w-full h-full object-cover" alt="Car Image" />`
+                    ? `<img src="${firstImg}" class="w-full h-full object-cover scale-100 hover:scale-105 transition duration-500" alt="Car Image" />`
                     : `<div class="w-full h-full flex items-center justify-center text-gray-300">No Image</div>`
             }
-          </div>
 
-          <div class="mt-4 text-center">
-            <h3 class="text-lg font-semibold">${car.brand ?? ""} ${car.model ?? ""}</h3>
-            <p class="text-yellow-500 font-medium">$${car.price ?? ""}</p>
-            <p class="uppercase text-gray-400">${car.status ?? ""}</p>
-            <p class="text-sm text-gray-300">Year: ${car.year ?? ""}</p>
-          </div>
-        </div>
-      `;
+                    <div class="absolute top-3 left-3 flex gap-2">
+                      <span class="text-[11px] px-2 py-1 rounded-full bg-black/50 border border-white/10 uppercase tracking-wide">
+                        ${status}
+                      </span>
+                      <span class="text-[11px] px-2 py-1 rounded-full border uppercase tracking-wide ${availBadge}">
+                        ${availability}
+                      </span>
+                    </div>
+                  </div>
+                </a>
+
+                <div class="p-4">
+                  <a href="/cars/${car.id}">
+                    <h3 class="text-lg font-bold leading-tight hover:text-yellow-300 transition">
+                      ${(car.brand ?? "")} ${(car.model ?? "")}
+                    </h3>
+                  </a>
+
+                  <div class="mt-1 flex items-center justify-between">
+                    <p class="text-yellow-400 font-extrabold text-lg">$${car.price ?? ""}</p>
+                    <p class="text-xs text-gray-300">Year: ${car.year ?? ""}</p>
+                  </div>
+
+                  <div class="mt-3 space-y-1 text-sm text-gray-200/90">
+                    ${car.transmission ? `<p><span class="text-gray-400">Transmission:</span> ${car.transmission}</p>` : ""}
+                    ${car.fuelType ? `<p><span class="text-gray-400">Fuel:</span> ${car.fuelType}</p>` : ""}
+                    ${car.location ? `<p><span class="text-gray-400">Location:</span> ${car.location}</p>` : ""}
+                  </div>
+
+                  <div class="mt-4">
+                    <a href="/cars/${car.id}"
+                       class="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl
+                              bg-white/5 border border-white/10 hover:bg-white/10 transition">
+                      View Details →
+                    </a>
+                  </div>
+                </div>
+              </div>
+            `;
         });
+
+        attachRevealObserver();
     }
 
-    // ✅ Fetch cars by filters (ONLY ONE function)
+    // ✅ Filter cars
     function fetchFilteredCars() {
-        const status = document.getElementById("statusDropdown")?.value || ""; // NEW/USED
+        const status = document.getElementById("statusDropdown")?.value || "";
         const make = document.getElementById("makeDropdown")?.value || "";
         const model = document.getElementById("modelDropdown")?.value || "";
         const order = document.getElementById("orderDropdown")?.value || "asc";
-
-        // optional (only if inputs exist)
-        const minPriceEl = document.getElementById("minPrice");
-        const maxPriceEl = document.getElementById("maxPrice");
-        const minPrice = minPriceEl ? minPriceEl.value : "";
-        const maxPrice = maxPriceEl ? maxPriceEl.value : "";
 
         const params = new URLSearchParams();
         if (status) params.append("status", status);
         if (make) params.append("make", make);
         if (model) params.append("model", model);
-        if (minPrice) params.append("minPrice", minPrice);
-        if (maxPrice) params.append("maxPrice", maxPrice);
         params.append("order", order);
 
-        const url = `/filter?${params.toString()}`;
-        console.log("Fetching:", url);
-
-        fetch(url, { headers: { Accept: "application/json" } })
-            .then((res) => {
-                const ct = res.headers.get("content-type") || "";
-                if (!ct.includes("application/json")) {
-                    // Usually means: redirect to login or HTML error page
-                    throw new Error("Server did not return JSON (check security/controller).");
-                }
-                return res.json();
-            })
-            .then((data) => {
-                console.log("Filtered cars:", data);
-                renderCars(data);
-            })
+        fetch(`/filter?${params.toString()}`, { headers: { Accept: "application/json" } })
+            .then((res) => res.json())
+            .then((data) => renderCars(data))
             .catch((err) => console.error("Error fetching cars:", err));
     }
 
-    // ✅ Reset filters and reload the page
+    // ✅ Reset
     function resetFilters() {
-        const statusEl = document.getElementById("statusDropdown");
-        const makeEl = document.getElementById("makeDropdown");
-        const modelEl = document.getElementById("modelDropdown");
-        const orderEl = document.getElementById("orderDropdown");
-
-        if (statusEl) statusEl.value = "";
-        if (makeEl) makeEl.value = "";
-        if (modelEl) modelEl.value = "";
-        if (orderEl) orderEl.value = "asc";
-
-        // optional price inputs
-        const minPriceEl = document.getElementById("minPrice");
-        const maxPriceEl = document.getElementById("maxPrice");
-        if (minPriceEl) minPriceEl.value = "";
-        if (maxPriceEl) maxPriceEl.value = "";
-
-        // easiest: reload original thymeleaf list
+        document.getElementById("statusDropdown").value = "";
+        document.getElementById("makeDropdown").value = "";
+        document.getElementById("modelDropdown").innerHTML = `<option value="">All Models</option>`;
+        document.getElementById("orderDropdown").value = "asc";
         window.location.href = "/";
     }
 
-    // ✅ Load models when make changes
+    // ✅ Load models by make
     function loadModels() {
         const make = document.getElementById("makeDropdown")?.value || "";
         const modelDropdown = document.getElementById("modelDropdown");
-
         if (!modelDropdown) return;
 
         modelDropdown.innerHTML = `<option value="">All Models</option>`;
         if (!make) return;
 
-        fetch(`/models?make=${encodeURIComponent(make)}`, {
-            headers: { Accept: "application/json" },
-        })
+        fetch(`/models?make=${encodeURIComponent(make)}`, { headers: { Accept: "application/json" } })
             .then((res) => res.json())
             .then((models) => {
                 (models || []).forEach((m) => {
@@ -223,19 +367,12 @@
             .catch((err) => console.error("Error loading models:", err));
     }
 
-    // ✅ Auto attach events
     document.addEventListener("DOMContentLoaded", () => {
+        attachRevealObserver();
         const makeDropdown = document.getElementById("makeDropdown");
-        if (makeDropdown) {
-            makeDropdown.addEventListener("change", () => {
-                loadModels();
-                // optional: auto-run filter when make changes
-                // fetchFilteredCars();
-            });
-        }
+        if (makeDropdown) makeDropdown.addEventListener("change", loadModels);
     });
 </script>
-
 
 </body>
 </html>

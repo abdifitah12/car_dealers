@@ -2,12 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Add New Car</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-900 text-white">
 
 <nav class="bg-black p-4">
-    <div class="container mx-auto flex justify-between">
+    <div class="container mx-auto flex justify-between gap-3">
         <a th:href="@{/}" class="border px-4 py-2 rounded hover:bg-white hover:text-black">
             Car List
         </a>
@@ -15,32 +17,89 @@
         <a th:href="@{/admin/cars}" class="border px-4 py-2 rounded hover:bg-white hover:text-black">
             Update or Delete
         </a>
-
     </div>
 </nav>
 
 <section class="py-10">
-    <div class="container mx-auto bg-gray-800 p-6 rounded-lg">
+    <div class="container mx-auto max-w-4xl bg-gray-800 p-6 rounded-lg">
         <h2 class="text-2xl font-bold text-center mb-6">Add New Car</h2>
 
-        <form th:action="@{/cars/add}" th:object="${car}" method="post" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input type="text" th:field="*{brand}" placeholder="Brand" required class="p-3 rounded bg-gray-700 text-white">
-            <input type="text" th:field="*{model}" placeholder="Model" required class="p-3 rounded bg-gray-700 text-white">
-            <input type="number" th:field="*{price}" placeholder="Price" required class="p-3 rounded bg-gray-700 text-white">
-            <input type="number" th:field="*{year}" placeholder="Year" required class="p-3 rounded bg-gray-700 text-white">
+        <form th:action="@{/cars/add}"
+              th:object="${car}"
+              method="post"
+              enctype="multipart/form-data"
+              class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
+            <!-- Brand -->
+            <input type="text"
+                   th:field="*{brand}"
+                   placeholder="Brand (ex: Toyota)"
+                   required
+                   class="p-3 rounded bg-gray-700 text-white">
+
+            <!-- Model -->
+            <input type="text"
+                   th:field="*{model}"
+                   placeholder="Model (ex: Camry)"
+                   required
+                   class="p-3 rounded bg-gray-700 text-white">
+
+            <!-- Price -->
+            <input type="number"
+                   th:field="*{price}"
+                   placeholder="Price (ex: 20000)"
+                   required
+                   class="p-3 rounded bg-gray-700 text-white">
+
+            <!-- Year -->
+            <input type="number"
+                   th:field="*{year}"
+                   placeholder="Year (ex: 2024)"
+                   required
+                   class="p-3 rounded bg-gray-700 text-white">
+
+            <!-- Status -->
             <select th:field="*{status}" class="p-3 rounded bg-gray-700 text-white" required>
                 <option value="">Select Status</option>
                 <option value="NEW">New</option>
                 <option value="USED">Used</option>
             </select>
 
-            <label class="text-white col-span-full">Upload Images:</label>
-            <input type="file" name="imageFiles" accept="image/*" multiple class="p-3 rounded bg-gray-700 text-white col-span-full">
+            <!-- Transmission -->
+            <select th:field="*{transmission}" class="p-3 rounded bg-gray-700 text-white">
+                <option value="">Transmission (optional)</option>
+                <option value="Automatic">Automatic</option>
+                <option value="Manual">Manual</option>
+            </select>
 
-            <button type="submit" class="p-3 bg-yellow-500 text-black rounded hover:bg-yellow-600 col-span-full">
+            <!-- Fuel Type -->
+            <select th:field="*{fuelType}" class="p-3 rounded bg-gray-700 text-white">
+                <option value="">Fuel Type (optional)</option>
+                <option value="Gas">Gas</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Electric">Electric</option>
+            </select>
+
+            <!-- Location -->
+            <input type="text"
+                   th:field="*{location}"
+                   placeholder="Location (ex: Seattle, WA)"
+                   class="p-3 rounded bg-gray-700 text-white">
+
+
+            <!-- Images -->
+            <label class="text-white col-span-full mt-2">Upload Images:</label>
+            <input type="file"
+                   name="imageFiles"
+                   accept="image/*"
+                   multiple
+                   class="p-3 rounded bg-gray-700 text-white col-span-full">
+
+            <button type="submit"
+                    class="p-3 bg-yellow-500 text-black rounded hover:bg-yellow-600 col-span-full">
                 Add Car
             </button>
+
         </form>
     </div>
 </section>

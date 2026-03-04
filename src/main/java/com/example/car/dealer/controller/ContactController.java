@@ -15,21 +15,36 @@ public class ContactController {
 
     // ✅ 1️⃣ SHOW CONTACT INFO PAGE
     @GetMapping("/contact")
-    public String showContactPage(Model model) {
+    public String showContactPage(Model model,
+                                  @RequestParam(required = false) Long carId,
+                                  @RequestParam(required = false) String brand,
+                                  @RequestParam(required = false) String modelName,
+                                  @RequestParam(required = false) Integer year,
+                                  @RequestParam(required = false) Double price) {
 
-        // For contact form
-        model.addAttribute("contact", new Contact());
+        Contact contact = new Contact();
 
-        // ✅ Your contact information
+        // ✅ Prefill message with car info
+        if (carId != null) {
+            String msg = "Hello, I want more information about this car:\n"
+                    + "Car ID: " + carId + "\n"
+                    + "Brand: " + brand + "\n"
+                    + "Model: " + modelName + "\n"
+                    + "Year: " + year + "\n"
+                    + "Price: $" + price + "\n";
+            contact.setMessage(msg);
+        }
+
+        model.addAttribute("contact", contact);
+
         model.addAttribute("phone", "(206) 326-8924");
         model.addAttribute("email", "abdihaashin275@gmail.com");
         model.addAttribute("address", "SeaTac, WA, United States");
-
-        // ✅ Map location query (Google Maps embed)
         model.addAttribute("mapQuery", "SeaTac, WA");
 
-        return "contact"; // contact.html
+        return "contact";
     }
+
 
     // ✅ 2️⃣ SAVE CONTACT FORM
     @PostMapping("/contact")
@@ -43,5 +58,12 @@ public class ContactController {
     public String showContactList(Model model) {
         model.addAttribute("contacts", contactService.getAllContacts());
         return "contact-list";
+    }
+
+
+    @PostMapping("/contact/delete/{id}")
+    public String deleteContact(@PathVariable Long id) {
+        contactService.deleteContact(id);
+        return "redirect:/list?deleted";
     }
 }

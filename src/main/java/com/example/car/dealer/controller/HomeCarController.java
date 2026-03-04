@@ -46,6 +46,18 @@ public class HomeCarController {
     }
 
 
+    // ================= CAR DETAILS PAGE =================
+    @GetMapping("/cars/{id}")
+    public String carDetails(@PathVariable Long id, Model model) {
+        Car car = carRepository.findById(id).orElseThrow();
+        CarResponse carDto = carResponseService.toDto(car);
+        model.addAttribute("car", carDto);
+        return "car-details";
+    }
+
+
+
+
 
     // ================= MODELS BY MAKE =================
     @GetMapping("/models")

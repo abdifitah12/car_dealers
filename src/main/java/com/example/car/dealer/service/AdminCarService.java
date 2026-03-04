@@ -29,6 +29,10 @@ public class AdminCarService {
                 .orElseThrow(() -> new IllegalArgumentException("Car not found with id: " + id));
     }
 
+    public List<Car> getFinanceCars() {
+        return adminCarRepository.findByAvailability(CarAvailability.FINANCE);
+    }
+
     @Transactional
     public Car createCar(Car car, List<MultipartFile> imageFiles) {
         // attach images if uploaded
@@ -49,7 +53,8 @@ public class AdminCarService {
         existing.setPrice(updated.getPrice());
         existing.setYear(updated.getYear());
         existing.setStatus(updated.getStatus());
-        existing.setAvailability(updated.getAvailability()); // keep if you edit it on UI
+        existing.setAvailability(updated.getAvailability());
+
 
         // ✅ If new images uploaded -> replace old images
         if (hasNewImages(imageFiles)) {

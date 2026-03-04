@@ -28,8 +28,9 @@ public class Car {
     @Column(length = 30)
     private String transmission;      // Automatic / Manual
 
-    @Column(length = 30)
-    private String fuelType;          // Gas / Hybrid / Electric
+    @Column(name="fuel_type", length = 30)
+    private String fuelType;
+
 
 
 
@@ -45,6 +46,11 @@ public class Car {
 
     @Column(nullable = false)
     private Double price;
+
+    @OneToOne(mappedBy = "car", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private CarFinance finance;
+
+
 
     // ✅ NEW / USED
     @Enumerated(EnumType.STRING)

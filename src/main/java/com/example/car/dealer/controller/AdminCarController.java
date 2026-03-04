@@ -1,6 +1,8 @@
 package com.example.car.dealer.controller;
 
+import com.example.car.dealer.carEnum.CarAvailability;
 import com.example.car.dealer.entity.Car;
+import com.example.car.dealer.repository.CarRepository;
 import com.example.car.dealer.service.AdminCarService;
 import com.example.car.dealer.service.CarResponseService;
 import org.springframework.stereotype.Controller;
@@ -16,11 +18,13 @@ public class AdminCarController {
 
     private final AdminCarService adminCarService;
     private final CarResponseService carResponseService;
+    private final CarRepository carRepository;
 
     public AdminCarController(AdminCarService adminCarService,
-                              CarResponseService carResponseService) {
+                              CarResponseService carResponseService, CarRepository carRepository) {
         this.adminCarService = adminCarService;
         this.carResponseService = carResponseService;
+        this.carRepository = carRepository;
     }
 
     @GetMapping
@@ -51,6 +55,20 @@ public class AdminCarController {
         // or: return "redirect:/admin/cars?updated";
     }
 
+
+    @GetMapping("/finance-list")
+    public String showFinanceCars(Model model) {
+        List<Car> financeCars = carRepository.findByAvailability(CarAvailability.FINANCE);
+        model.addAttribute("cars", financeCars);
+        return "finance-list";
+    }
+    // ✅ SHOW SOLD LIST PAGE
+    @GetMapping("/sold")
+    public String showSoldCars(Model model) {
+        List<Car> soldCars = carRepository.findByAvailability(CarAvailability.SOLD);
+        model.addAttribute("cars", soldCars);
+        return "sold-list";
+    }
 
 
     @PostMapping("/{id}/delete")
