@@ -73,11 +73,14 @@
             </select>
 
             <!-- Fuel Type -->
-            <select th:field="*{fuelType}" class="p-3 rounded bg-gray-700 text-white">
+            <select name="fuelType"
+                    class="w-full rounded-xl bg-slate-900 text-white px-4 py-3">
                 <option value="">Fuel Type (optional)</option>
                 <option value="Gas">Gas</option>
                 <option value="Hybrid">Hybrid</option>
                 <option value="Electric">Electric</option>
+                <option value="Gas and Electric">Gas and Electric</option>
+                <option value="Gas, Electric and Electric">Gas, Electric and Electric</option>
             </select>
 
             <!-- Location -->

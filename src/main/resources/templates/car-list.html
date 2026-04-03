@@ -1,378 +1,280 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Find Your Perfect Car</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Car Sale</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <style>
-        /* Smooth entry animation */
-        .reveal { opacity: 0; transform: translateY(12px); }
-        .reveal.show { opacity: 1; transform: translateY(0); transition: all .55s ease; }
-
-        /* Subtle shine on hover */
-        .shine::after{
-            content:"";
-            position:absolute;
-            inset:-2px;
-            background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.10) 40%, transparent 80%);
-            transform: translateX(-120%);
-            transition: transform .7s ease;
-            pointer-events:none;
-        }
-        .shine:hover::after{ transform: translateX(120%); }
-
-        /* Better focus ring for selects/buttons */
-        select:focus, button:focus { outline: none; }
-    </style>
 </head>
+<body class="bg-slate-950 text-white min-h-screen">
 
-<body class="min-h-screen text-white bg-[#0B1220] relative overflow-x-hidden">
+<!-- ================= NAVBAR ================= -->
+<nav class="sticky top-0 z-50 border-b border-white/10 bg-black/70 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 py-3">
 
-<!-- Background glow -->
-<div class="pointer-events-none absolute inset-0">
-    <div class="absolute -top-32 -left-32 w-[420px] h-[420px] bg-yellow-500/15 blur-3xl rounded-full"></div>
-    <div class="absolute top-32 -right-32 w-[520px] h-[520px] bg-cyan-500/10 blur-3xl rounded-full"></div>
-    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[260px] bg-indigo-500/10 blur-3xl rounded-full"></div>
-</div>
+        <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
 
-<!-- ✅ Navigation Bar -->
-<nav class="fixed top-0 left-0 right-0 z-30 border-b border-white/10 bg-black/45 backdrop-blur-xl">
-    <div class="container mx-auto px-3 py-3 flex flex-wrap items-center justify-between gap-3">
+            <!-- Logo -->
+            <div class="flex items-center justify-between gap-4">
+                <a th:href="@{/}" class="flex items-center gap-2 shrink-0">
+                    <span class="text-3xl font-extrabold tracking-tight">
+                        <span class="text-white">Car</span><span class="text-yellow-400">Sale</span>
+                    </span>
+                </a>
 
-        <!-- Left: title -->
-        <div class="flex items-center gap-3">
-            <a th:href="@{/}" class="text-lg sm:text-xl font-extrabold tracking-wide">
-                Car<span class="text-yellow-400">Sale</span>
-            </a>
-            <span class="hidden sm:inline-flex text-xs px-2 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200">
-                Find your perfect car
-            </span>
+
+            </div>
+
+            <!-- Filter Form -->
+            <form th:action="@{/}" method="get"
+                  class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5 gap-3 w-full xl:max-w-5xl">
+
+                <!-- Status -->
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Status</label>
+                    <select name="status"
+                            class="w-full rounded-2xl bg-slate-900/80 border border-white/10 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-yellow-400">
+                        <option value="">All Status</option>
+                        <option value="NEW" th:selected="${selectedStatus == 'NEW'}">New</option>
+                        <option value="USED" th:selected="${selectedStatus == 'USED'}">Used</option>
+                    </select>
+                </div>
+
+                <!-- Make -->
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Make</label>
+                    <select id="makeSelect" name="make"
+                            class="w-full rounded-2xl bg-slate-900/80 border border-white/10 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-yellow-400">
+                        <option value="">All Makes</option>
+                        <option th:each="m : ${makes}"
+                                th:value="${m}"
+                                th:text="${m}"
+                                th:selected="${selectedMake == m}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Model -->
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Model</label>
+                    <select id="modelSelect" name="model"
+                            class="w-full rounded-2xl bg-slate-900/80 border border-white/10 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-yellow-400">
+                        <option value="">All Models</option>
+                    </select>
+                </div>
+
+                <!-- Sort -->
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Sort Price</label>
+                    <select name="order"
+                            class="w-full rounded-2xl bg-slate-900/80 border border-white/10 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-yellow-400">
+                        <option value="asc" th:selected="${selectedOrder == 'asc'}">Low → High</option>
+                        <option value="desc" th:selected="${selectedOrder == 'desc'}">High → Low</option>
+                    </select>
+                </div>
+
+                <!-- Search -->
+                <div class="flex items-end">
+                    <button type="submit"
+                            class="w-full rounded-2xl bg-yellow-400 text-black font-bold px-5 py-3 hover:bg-yellow-300 transition shadow-lg shadow-yellow-500/20">
+                        Search
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <!-- Filters -->
-        <form id="filterForm" class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-
-            <!-- NEW/USED -->
-            <select id="statusDropdown"
-                    class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white
-                           focus:ring-2 focus:ring-yellow-400/50">
-                <option value="">All Status</option>
-                <option value="USED">Used</option>
-                <option value="NEW">New</option>
-            </select>
-
-            <!-- Make -->
-            <select id="makeDropdown"
-                    class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white
-                           focus:ring-2 focus:ring-yellow-400/50">
-                <option value="">All Makes</option>
-                <option th:each="m : ${makes}" th:value="${m}" th:text="${m}"></option>
-            </select>
-
-            <!-- Model -->
-            <select id="modelDropdown"
-                    class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white
-                           focus:ring-2 focus:ring-yellow-400/50">
-                <option value="">All Models</option>
-            </select>
-
-            <!-- Order -->
-            <select id="orderDropdown"
-                    class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white
-                           focus:ring-2 focus:ring-yellow-400/50">
-                <option value="asc">Price Low → High</option>
-                <option value="desc">Price High → Low</option>
-            </select>
-
-            <!-- Search -->
-            <button type="button"
-                    onclick="fetchFilteredCars()"
-                    class="px-4 py-2 rounded-xl font-semibold text-black bg-yellow-400 hover:bg-yellow-300
-                           active:scale-[0.98] transition shadow-lg shadow-yellow-500/15">
-                Search
-            </button>
-
-            <!-- Reset -->
-            <button type="button"
-                    onclick="resetFilters()"
-                    class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10
-                           active:scale-[0.98] transition">
-                Reset
-            </button>
-        </form>
-
-        <!-- Contact -->
-        <a th:href="@{/contact}"
-           class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10
-                  active:scale-[0.98] transition">
-            Contact Us
-        </a>
     </div>
 </nav>
 
-<!-- Page header -->
-<section class="pt-24 pb-6">
-    <div class="container mx-auto px-3">
-        <div class="flex items-end justify-between flex-wrap gap-3">
-            <div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                    Browse <span class="text-yellow-400">Cars</span>
-                </h1>
-                <p class="text-gray-300 mt-1">Filter by status, make, model, and price — fast and clean.</p>
+<!-- ================= HERO ================= -->
+<section class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(250,204,21,0.18),transparent_30%),radial-gradient(circle_at_right,rgba(59,130,246,0.14),transparent_30%)]"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4 pt-12 pb-8">
+        <div class="max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300 mb-5">
+                Premium inventory • Fast search • Clean design
             </div>
+
+            <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">
+                Browse <span class="text-yellow-400">Cars</span>
+            </h1>
+
+            <p class="mt-4 text-lg md:text-xl text-gray-300">
+                Explore available cars by status, make, model, and price. Simple, fast, and modern.
+            </p>
         </div>
     </div>
 </section>
 
-<!-- 🚗 Car Listings -->
-<section class="pb-12">
-    <div class="container mx-auto px-3">
-        <div id="carsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<!-- ================= CAR LIST ================= -->
+<section class="max-w-7xl mx-auto px-4 pb-14">
 
-            <!-- ✅ Thymeleaf initial cars -->
-            <div th:each="car : ${cars}"
-                 class="reveal relative overflow-hidden rounded-2xl border border-white/10 bg-white/5
-                        shadow-xl shadow-black/30 hover:shadow-2xl hover:-translate-y-1 transition duration-300 shine">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl md:text-3xl font-bold">Available Inventory</h2>
+        <p class="text-sm text-gray-400">
+            <span th:text="${#lists.size(cars)}">0</span> car(s) found
+        </p>
+    </div>
 
-                <!-- ✅ Clickable image -> details page -->
-                <a th:href="@{/cars/{id}(id=${car.id})}" class="block">
-                    <div class="relative w-full h-56 md:h-64 overflow-hidden bg-black/20">
-                        <img th:if="${car.imagesBase64 != null && #lists.size(car.imagesBase64) > 0}"
-                             th:src="'data:image/jpeg;base64,' + ${car.imagesBase64[0]}"
-                             class="w-full h-full object-cover scale-100 hover:scale-105 transition duration-500"
-                             alt="Car Image" />
+    <div th:if="${cars == null || #lists.isEmpty(cars)}"
+         class="rounded-3xl border border-white/10 bg-white/5 p-12 text-center text-gray-300">
+        No cars found.
+    </div>
 
-                        <div th:if="${car.imagesBase64 == null || #lists.size(car.imagesBase64) == 0}"
-                             class="w-full h-full flex items-center justify-center text-gray-300">
-                            No Image
-                        </div>
+    <div th:if="${cars != null && !#lists.isEmpty(cars)}"
+         class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
 
-                        <!-- Top badges -->
-                        <div class="absolute top-3 left-3 flex gap-2">
-                            <!-- NEW/USED -->
-                            <span th:text="${car.status}"
-                                  class="text-[11px] px-2 py-1 rounded-full bg-black/50 border border-white/10 uppercase tracking-wide">
-                                USED
-                            </span>
+        <div th:each="car : ${cars}"
+             class="group overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm shadow-2xl hover:-translate-y-1 transition duration-300">
 
-                            <!-- AVAILABLE/SOLD -->
-                            <span th:text="${car.availability}"
-                                  th:classappend="${car.availability == 'SOLD'} ? ' bg-red-500/20 text-red-200 border-red-500/30' : ' bg-emerald-500/15 text-emerald-200 border-emerald-500/25'"
-                                  class="text-[11px] px-2 py-1 rounded-full border uppercase tracking-wide">
-                                AVAILABLE
-                            </span>
-                        </div>
-                    </div>
-                </a>
+            <!-- Image -->
+            <div class="relative h-72 overflow-hidden bg-slate-900">
+                <img th:if="${car.imagesBase64 != null && #lists.size(car.imagesBase64) > 0}"
+                     th:src="'data:image/jpeg;base64,' + ${car.imagesBase64[0]}"
+                     alt="Car image"
+                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500"/>
 
-                <!-- Content -->
-                <div class="p-4">
-                    <!-- ✅ also clickable title -->
-                    <a th:href="@{/cars/{id}(id=${car.id})}">
-                        <h3 class="text-lg font-bold leading-tight hover:text-yellow-300 transition"
+                <div th:if="${car.imagesBase64 == null || #lists.size(car.imagesBase64) == 0}"
+                     class="w-full h-full flex items-center justify-center text-gray-400">
+                    No Image
+                </div>
+
+                <div class="absolute top-4 left-4 flex flex-wrap gap-2">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-700/90 text-white"
+                          th:text="${car.status}">
+                        USED
+                    </span>
+
+                    <span class="px-3 py-1 rounded-full text-xs font-bold border border-emerald-400/30 bg-emerald-400/15 text-emerald-300"
+                          th:text="${car.availability}">
+                        AVAILABLE
+                    </span>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h3 class="text-3xl font-extrabold leading-tight"
                             th:text="${car.brand + ' ' + car.model}">
-                            Toyota Camry SE Sedan
+                            Toyota Camry
                         </h3>
-                    </a>
 
-                    <p class="text-yellow-400 font-extrabold text-lg"
-                       th:text="'$' + ${#numbers.formatDecimal(car.price, 0, 'COMMA', 0, 'POINT')}">
-                        $0
-                    </p>
-
-                    <p class="text-xs text-gray-300"
-                           th:text="'Year: ' + ${car.year}">
-                            Year: 2025
+                        <p class="mt-2 text-gray-300">
+                            Year:
+                            <span class="text-white font-semibold" th:text="${car.year}">2026</span>
                         </p>
-                    </div>
-
-                    <div class="mt-3 space-y-1 text-sm text-gray-200/90">
-                        <p th:if="${car.transmission != null}">
-                            <span class="text-gray-400">Transmission:</span>
-                            <span th:text="${car.transmission}"></span>
-                        </p>
-                        <p th:if="${car.fuelType != null}">
-                            <span class="text-gray-400">Fuel:</span>
-                            <span th:text="${car.fuelType}"></span>
-                        </p>
-                        <p th:if="${car.location != null}">
-                            <span class="text-gray-400">Location:</span>
-                            <span th:text="${car.location}"></span>
-                        </p>
-                    </div>
-
-                    <!-- ✅ small action -->
-                    <div class="mt-4">
-                        <a th:href="@{/cars/{id}(id=${car.id})}"
-                           class="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl
-                                  bg-white/5 border border-white/10 hover:bg-white/10 transition">
-                            View Details →
-                        </a>
                     </div>
                 </div>
-            </div>
 
-            <!-- Empty state -->
-            <div th:if="${cars == null || #lists.isEmpty(cars)}"
-                 class="col-span-full text-center text-gray-300 py-10">
-                No cars found.
-            </div>
+                <div class="mt-4 text-4xl font-extrabold text-yellow-400"
+                     th:text="'$' + ${#numbers.formatDecimal(car.price,0,'COMMA',0,'POINT')}">
+                    $50,000
+                </div>
 
+                <div class="mt-5 grid grid-cols-1 gap-2 text-base text-gray-300">
+                    <p>
+                        <span class="text-gray-400">Transmission:</span>
+                        <span class="text-white font-medium" th:text="${car.transmission}">Automatic</span>
+                    </p>
+                    <p>
+                        <span class="text-gray-400">Fuel:</span>
+                        <span class="text-white font-medium" th:text="${car.fuelType}">Hybrid</span>
+                    </p>
+                    <p>
+                        <span class="text-gray-400">Location:</span>
+                        <span class="text-white font-medium" th:text="${car.location}">Seattle</span>
+                    </p>
+                </div>
+
+                <a th:href="@{/cars/{id}(id=${car.id})}"
+                   class="mt-6 inline-flex items-center justify-center w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-lg font-semibold hover:bg-white/10 transition">
+                    View Details →
+                </a>
+            </div>
         </div>
     </div>
 </section>
 
-<script>
-    // ✅ Reveal animation
-    function attachRevealObserver() {
-        const items = document.querySelectorAll(".reveal");
-        const obs = new IntersectionObserver((entries) => {
-            entries.forEach((e) => {
-                if (e.isIntersecting) e.target.classList.add("show");
-            });
-        }, { threshold: 0.12 });
+<!-- ================= MODEL FILTER SCRIPT ================= -->
+<script th:inline="javascript">
+    const makeSelect = document.getElementById("makeSelect");
+    const modelSelect = document.getElementById("modelSelect");
+    const selectedModel = /*[[${selectedModel}]]*/ "";
 
-        items.forEach((el) => obs.observe(el));
-    }
+    async function loadModels(make, selectedValue = "") {
+        modelSelect.innerHTML = `<option value="">All Models</option>`;
 
-    // ✅ Render cars (filtered results) with SAME style + clickable details
-    function renderCars(cars) {
-        const container = document.getElementById("carsGrid");
-        if (!container) return;
-
-        container.innerHTML = "";
-
-        if (!cars || cars.length === 0) {
-            container.innerHTML = "<p class='text-center text-white col-span-full'>No cars found</p>";
-            return;
-        }
-
-        cars.forEach((car) => {
-            const firstImg = car.imagesBase64 && car.imagesBase64.length > 0
-                ? `data:image/jpeg;base64,${car.imagesBase64[0]}`
-                : null;
-
-            const status = (car.status || "").toString();
-            const availability = (car.availability || "").toString();
-
-            const availBadge =
-                availability === "SOLD"
-                    ? "bg-red-500/20 text-red-200 border-red-500/30"
-                    : "bg-emerald-500/15 text-emerald-200 border-emerald-500/25";
-
-            container.innerHTML += `
-              <div class="reveal relative overflow-hidden rounded-2xl border border-white/10 bg-white/5
-                          shadow-xl shadow-black/30 hover:shadow-2xl hover:-translate-y-1 transition duration-300 shine">
-
-                <a href="/cars/${car.id}" class="block">
-                  <div class="relative w-full h-56 md:h-64 overflow-hidden bg-black/20">
-                    ${
-                firstImg
-                    ? `<img src="${firstImg}" class="w-full h-full object-cover scale-100 hover:scale-105 transition duration-500" alt="Car Image" />`
-                    : `<div class="w-full h-full flex items-center justify-center text-gray-300">No Image</div>`
-            }
-
-                    <div class="absolute top-3 left-3 flex gap-2">
-                      <span class="text-[11px] px-2 py-1 rounded-full bg-black/50 border border-white/10 uppercase tracking-wide">
-                        ${status}
-                      </span>
-                      <span class="text-[11px] px-2 py-1 rounded-full border uppercase tracking-wide ${availBadge}">
-                        ${availability}
-                      </span>
-                    </div>
-                  </div>
-                </a>
-
-                <div class="p-4">
-                  <a href="/cars/${car.id}">
-                    <h3 class="text-lg font-bold leading-tight hover:text-yellow-300 transition">
-                      ${(car.brand ?? "")} ${(car.model ?? "")}
-                    </h3>
-                  </a>
-
-                  <div class="mt-1 flex items-center justify-between">
-                    <p class="text-yellow-400 font-extrabold text-lg">$${car.price ?? ""}</p>
-                    <p class="text-xs text-gray-300">Year: ${car.year ?? ""}</p>
-                  </div>
-
-                  <div class="mt-3 space-y-1 text-sm text-gray-200/90">
-                    ${car.transmission ? `<p><span class="text-gray-400">Transmission:</span> ${car.transmission}</p>` : ""}
-                    ${car.fuelType ? `<p><span class="text-gray-400">Fuel:</span> ${car.fuelType}</p>` : ""}
-                    ${car.location ? `<p><span class="text-gray-400">Location:</span> ${car.location}</p>` : ""}
-                  </div>
-
-                  <div class="mt-4">
-                    <a href="/cars/${car.id}"
-                       class="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl
-                              bg-white/5 border border-white/10 hover:bg-white/10 transition">
-                      View Details →
-                    </a>
-                  </div>
-                </div>
-              </div>
-            `;
-        });
-
-        attachRevealObserver();
-    }
-
-    // ✅ Filter cars
-    function fetchFilteredCars() {
-        const status = document.getElementById("statusDropdown")?.value || "";
-        const make = document.getElementById("makeDropdown")?.value || "";
-        const model = document.getElementById("modelDropdown")?.value || "";
-        const order = document.getElementById("orderDropdown")?.value || "asc";
-
-        const params = new URLSearchParams();
-        if (status) params.append("status", status);
-        if (make) params.append("make", make);
-        if (model) params.append("model", model);
-        params.append("order", order);
-
-        fetch(`/filter?${params.toString()}`, { headers: { Accept: "application/json" } })
-            .then((res) => res.json())
-            .then((data) => renderCars(data))
-            .catch((err) => console.error("Error fetching cars:", err));
-    }
-
-    // ✅ Reset
-    function resetFilters() {
-        document.getElementById("statusDropdown").value = "";
-        document.getElementById("makeDropdown").value = "";
-        document.getElementById("modelDropdown").innerHTML = `<option value="">All Models</option>`;
-        document.getElementById("orderDropdown").value = "asc";
-        window.location.href = "/";
-    }
-
-    // ✅ Load models by make
-    function loadModels() {
-        const make = document.getElementById("makeDropdown")?.value || "";
-        const modelDropdown = document.getElementById("modelDropdown");
-        if (!modelDropdown) return;
-
-        modelDropdown.innerHTML = `<option value="">All Models</option>`;
         if (!make) return;
 
-        fetch(`/models?make=${encodeURIComponent(make)}`, { headers: { Accept: "application/json" } })
-            .then((res) => res.json())
-            .then((models) => {
-                (models || []).forEach((m) => {
-                    const opt = document.createElement("option");
-                    opt.value = m;
-                    opt.textContent = m;
-                    modelDropdown.appendChild(opt);
-                });
-            })
-            .catch((err) => console.error("Error loading models:", err));
+        try {
+            const response = await fetch(`/models?make=${encodeURIComponent(make)}`);
+            const models = await response.json();
+
+            models.forEach(model => {
+                const option = document.createElement("option");
+                option.value = model;
+                option.textContent = model;
+                if (selectedValue && selectedValue === model) {
+                    option.selected = true;
+                }
+                modelSelect.appendChild(option);
+            });
+        } catch (e) {
+            console.error("Failed to load models", e);
+        }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        attachRevealObserver();
-        const makeDropdown = document.getElementById("makeDropdown");
-        if (makeDropdown) makeDropdown.addEventListener("change", loadModels);
+    makeSelect.addEventListener("change", function () {
+        loadModels(this.value);
+    });
+
+    window.addEventListener("DOMContentLoaded", function () {
+        const currentMake = makeSelect.value;
+        if (currentMake) {
+            loadModels(currentMake, selectedModel);
+        }
     });
 </script>
+<!--Start of Tawk.to Script-->
+<button onclick="openChat()"
+        class="fixed bottom-6 right-6 bg-yellow-400 text-black px-4 py-2 rounded-full shadow-lg font-bold z-50">
+    💬 Help
+</button>
 
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+
+    (function () {
+        var s1 = document.createElement("script"),
+            s0 = document.getElementsByTagName("script")[0];
+
+        s1.async = true;
+        s1.src = 'https://embed.tawk.to/69cc3ce9d746a31c382e15ed/1jl2srs49';
+        s1.charset = 'UTF-8';
+        s1.setAttribute('crossorigin', '*');
+        s0.parentNode.insertBefore(s1, s0);
+    })();
+
+    function openChat() {
+        if (typeof Tawk_API !== "undefined" && Tawk_API.maximize) {
+            Tawk_API.maximize();
+        }
+    }
+</script>
+<!--End of Tawk.to Script-->
+
+<script>
+    var Tawk_API = Tawk_API || {};
+
+    Tawk_API.onLoad = function () {
+        Tawk_API.hideWidget(); // hide default bubble
+
+        // Resize chat window
+        Tawk_API.resize(320, 420); // width, height
+    };
+</script>
+<!--End of Tawk.to Script-->
 </body>
 </html>
